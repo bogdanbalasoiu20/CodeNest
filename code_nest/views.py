@@ -7,3 +7,6 @@ from django.http import HttpResponse
 
 def test(request):
     return HttpResponse('server is running')
+
+def test2(request):
+    return HttpResponse('server este ok')
