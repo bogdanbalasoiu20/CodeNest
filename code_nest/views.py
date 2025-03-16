@@ -10,3 +10,7 @@ def test(request):
 
 def test2(request):
     return HttpResponse('server este ok')
+
+
+def test3(request):
+    return HttpResponse('test3')
