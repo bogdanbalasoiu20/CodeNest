@@ -15,3 +15,6 @@ def test3(request):
 
 def test4(request):
     return HttpResponse('test4')
+
+def test5(request):
+    return HttpResponse('test5')
