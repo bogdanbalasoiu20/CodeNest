@@ -1,0 +1,15 @@
+# Ignoră fișierele sensibile și generate automat
+.env
+/settings.py
+
+# Ignoră fișierele compilate Python
+*.pyc
+__pycache__/
+
+# Ignoră baza de date SQLite
+db.sqlite3
+
+# Ignoră folderele de mediu virtual
+venv/
+*.venv/
+.env/
