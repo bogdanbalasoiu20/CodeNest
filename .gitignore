@@ -1,6 +1,6 @@
 # Ignoră fișierele sensibile și generate automat
 .env
-/settings.py
+CodeNest/settings.py
 
 # Ignoră fișierele compilate Python
 *.pyc
