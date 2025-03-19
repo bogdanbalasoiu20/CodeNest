@@ -11,7 +11,7 @@ from django.core.exceptions import ValidationError
                                         # --------------------------
 class CustomUser(AbstractUser):
 
-    age = models.IntegerField(null=False, blank=False)
+    age = models.IntegerField(null=True, blank=True)
     email_confirm = models.BooleanField(default=False) # Default unconfirmed email
     ranking_position = models.IntegerField(default= 0)
     XP = models.IntegerField(default=0)
