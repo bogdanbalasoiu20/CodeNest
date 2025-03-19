@@ -15,6 +15,18 @@ class CustomUser(AbstractUser):
     email_confirm = models.BooleanField(default=False) # Default unconfirmed email
     ranking_position = models.IntegerField(default= 0)
     XP = models.IntegerField(default=0)
+    
+    
+    groups = models.ManyToManyField(
+        "auth.Group",
+        related_name="customuser_set",
+        blank=True
+    )
+    user_permissions = models.ManyToManyField(
+        "auth.Permission",
+        related_name="customuser_permissions_set",
+        blank=True
+    )
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.username})"
