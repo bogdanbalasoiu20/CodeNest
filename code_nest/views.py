@@ -18,3 +18,8 @@ def test4(request):
 
 def test5(request):
     return HttpResponse('test5...')
+
+
+def home(request):
+    return render(request,'home.html') 
+    
