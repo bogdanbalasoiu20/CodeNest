@@ -1,27 +1,12 @@
 from django.shortcuts import render,redirect
 from django.http import HttpResponse
-from .forms import CustomAuthenticationForm
+from .forms import CustomAuthenticationForm, Register
 from django.contrib.auth import login,logout
 from django.contrib import messages
-
-def test(request):
-    return HttpResponse('server is running...')
-
-def test2(request):
-    return HttpResponse('server este ok')
-
-
-def test3(request):
-    return HttpResponse('test3')
-
-def test4(request):
-    return HttpResponse('test4')
-
-
+import uuid
 
 def home(request):
     return render(request,'home.html') 
-    
     
     
 def custom_login_view(request):
@@ -46,3 +31,24 @@ def logout_view(request):
     logout(request)
     messages.success(request, "You have been logged out successfully.")
     return redirect('home')
+
+def register(request):
+    if request.method == 'POST':
+
+        form = Register(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.email_confirm = False
+            user.cod = str(uuid.uuid4())
+            user.save()
+
+            return redirect('login')
+        
+        else:
+
+            return render(request, 'register.html', {'form' : form})
+    else:
+
+        form = Register()
+    return render(request, 'register.html', {'form':form})
+

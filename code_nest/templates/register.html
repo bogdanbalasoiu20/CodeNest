@@ -1,0 +1,22 @@
+
+{% load static %}
+<!-- <link rel="stylesheet" type="text/css" href="{% static 'css/register.css' %}"> -->
+
+<form method="post">
+    {% csrf_token %} 
+    {{ form.non_field_errors }}
+    {% for field in form %}
+        <div style="margin-bottom: 20px;">
+            <label>{{ field.label }}</label><br>
+            {{ field }}
+            {% if field.errors %}
+                <div style="color: red; font-size: 14px;">
+                    {% for error in field.errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    {% endfor %}
+    <button type="submit">Register</button>
+</form>
