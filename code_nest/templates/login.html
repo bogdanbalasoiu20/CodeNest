@@ -39,7 +39,11 @@
                 {{ form.stay_logged }}
             </div>
 
+            <input type="hidden" name="next" value="{{ request.GET.next }}">
+
+
             <button type="submit" class="btn">Login</button>
+            <p>Don't you have an account? Register <a href="{% url 'register' %}">here</a><p>
         </form>
     </div>
 </body>

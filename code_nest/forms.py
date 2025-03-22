@@ -6,13 +6,17 @@ from django.core.exceptions import ValidationError
 import re
 import uuid
 
+                                # FORMULAR PENTRU LOGIN
 class CustomAuthenticationForm(AuthenticationForm):
     stay_logged=forms.BooleanField(required=False,initial=False,label="Stay logged in")
     
-    def clean(self):
-        cleaned_data=super().clean()
-        stay_logged=self.cleaned_data.get('stay_logged')
-        return cleaned_data
+    
+    def confirm_login_allowed(self, user):  #login only with email confirmed
+        if not user.email_confirm:
+            raise forms.ValidationError(
+                "You must confirm your email before logging in.",
+                code='email_not_confirmed'
+            )
     
 
 

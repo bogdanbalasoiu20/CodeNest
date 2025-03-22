@@ -4,12 +4,16 @@ from .forms import CustomAuthenticationForm, Register
 from django.contrib.auth import login,logout
 from django.contrib import messages
 import uuid
+from .models import CustomUser
 
 def home(request):
     return render(request,'home.html') 
     
     
 def custom_login_view(request):
+    if request.user.is_authenticated:   #if user is already logged in then he is redirected to home page
+        return redirect('home')
+
     if request.method == 'POST':
         form = CustomAuthenticationForm(data=request.POST, request=request)
         if form.is_valid():
@@ -18,7 +22,11 @@ def custom_login_view(request):
             if not form.cleaned_data.get('stay_logged'):
                 request.session.set_expiry(0)
             else:
-                request.session.set_expiry(2*7*24*60*60)  # 2 săptămâni în secunde            
+                request.session.set_expiry(2*7*24*60*60)              
+            
+            next_url = request.POST.get('next') or request.GET.get('next')
+            if next_url:
+                return redirect(next_url)
             return redirect('home')
     else:
         form = CustomAuthenticationForm()
@@ -30,7 +38,7 @@ def custom_login_view(request):
 def logout_view(request):
     logout(request)
     messages.success(request, "You have been logged out successfully.")
-    return redirect('home')
+    return redirect('login')
 
 def register(request):
     if request.method == 'POST':
