@@ -76,3 +76,19 @@ class Register(UserCreationForm):
             user.save()  # Save the user in the database
             #self.send_confirmation_email(user) # Sending confirmation email
         return user 
+    
+    
+    
+                #PROFILE PAGE FORM
+                
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model=CustomUser
+        fields=['XP','username','first_name','last_name','email','age']
+        
+    #these fields can not be modified   
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['XP'].disabled = True
+        self.fields['email'].disabled = True
