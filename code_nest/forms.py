@@ -83,12 +83,17 @@ class Register(UserCreationForm):
                 
 class ProfileForm(forms.ModelForm):
     class Meta:
-        model=CustomUser
-        fields=['XP','username','first_name','last_name','email','age']
-        
-    #these fields can not be modified   
+        model = CustomUser
+        fields = ['XP', 'username', 'first_name', 'last_name', 'email', 'age']
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         self.fields['XP'].disabled = True
         self.fields['email'].disabled = True
+        self.instance = kwargs.get('instance')  #current user reference
+
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if CustomUser.objects.filter(username=username).exclude(pk=self.instance.pk).exists():
+            raise forms.ValidationError("The username is already taken")
+        return username
