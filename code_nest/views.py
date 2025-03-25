@@ -1,15 +1,22 @@
 from django.shortcuts import render,redirect
+from .models import CustomUser
 from django.http import HttpResponse
 from .forms import CustomAuthenticationForm, Register, ProfileForm
 from django.contrib.auth import login,logout
 from django.contrib import messages
-import uuid
 from django.contrib.auth.decorators import login_required
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
+from django.conf import settings  
+import uuid
 
 def home(request):
     return render(request,'home.html') 
-    
-#LOGIN FUNCTION    
+
+
+                                                #-------------#
+                                                #LOGIN FUNCTION
+                                                #-------------#
 def custom_login_view(request):
     if request.user.is_authenticated:   #if user is already logged in then he is redirected to home page
         return redirect('home')
@@ -18,7 +25,13 @@ def custom_login_view(request):
         form = CustomAuthenticationForm(data=request.POST, request=request)
         if form.is_valid():
             user = form.get_user()
+
+            if not user.email_confirm:
+                messages.error(request, "Please confirm your email first.")
+                return redirect('login')
+            
             login(request, user)
+
             if not form.cleaned_data.get('stay_logged'):
                 request.session.set_expiry(0)
             else:
@@ -34,16 +47,18 @@ def custom_login_view(request):
     return render(request, 'login.html', {'form': form})
 
 
-
-#LOGOUT FUNCTION
+                                                #--------------#
+                                                #LOGOUT FUNCTION
+                                                #--------------#
 def logout_view(request):
     logout(request)
     messages.success(request, "You have been logged out successfully.")
     return redirect('login')
 
 
-
-#REGISTER FUNCTION
+                                                #----------------#
+                                                #REGISTER FUNCTION
+                                                #----------------#
 def register(request):
     if request.method == 'POST':
 
@@ -51,13 +66,13 @@ def register(request):
         if form.is_valid():
             user = form.save(commit=False)
             user.email_confirm = False
-            user.cod = str(uuid.uuid4())
             user.save()
 
-            return redirect('login')
-        
-        else:
+            send_confirmation_email(user)
 
+            messages.success(request, "Please confirm your email first.")
+            return redirect('login')
+        else:
             return render(request, 'register.html', {'form' : form})
     else:
 
@@ -65,8 +80,62 @@ def register(request):
     return render(request, 'register.html', {'form':form})
 
 
+                                                #-------------------------#
+                                                #SENDING CONFIRMATION EMAIL
+                                                #-------------------------#
+def send_confirmation_email(user):
 
-#PROFILE FUNCTION
+    if user.email_confirm: 
+        print(f"User {user.username} has already confirm his email.")
+        return 
+    
+    confirmation_link = f"http://127.0.0.1:8000/code_nest/confirm_email/{user.code}/"
+
+    context = {
+        'first_name' : user.first_name,
+        'last_name' : user.last_name,
+        'username' : user.username,
+        'confirmation_link' : confirmation_link,
+    }
+
+    email_html = render_to_string('confirmation_email.html', context)
+
+    email = EmailMessage(
+        subject = 'Confirm your email Address',
+        body = email_html,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[user.email],
+    )
+
+    email.content_subtype = "html"
+    email.send()
+    print(f"Confirmation link: {confirmation_link}")
+
+
+                                                #------------#
+                                                #EMAIL CONFIRM
+                                                #------------#
+def confirm_email(request, code):
+    try:
+        user = CustomUser.objects.get(code=code)
+        if user.email_confirm:
+            messages.info(request, "Your email is already confirmed.")
+        else:
+            user.email_confirm = True
+            user.save()
+            messages.success(request, "Your email has been successfully confirmed!")
+
+        return redirect('login')
+
+    except CustomUser.DoesNotExist:
+        messages.error(request, "Invalid confirmation link.")
+        return redirect('register')
+
+
+
+                                                #---------------#
+                                                #PROFILE FUNCTION
+                                                #---------------#
 @login_required
 def profile(request):
     user=request.user
@@ -81,7 +150,9 @@ def profile(request):
     return render(request,'profile.html',{'form':form})
 
 
-#DELETE ACCOUNT FUNCTION
+                                            #----------------------#
+                                            #DELETE ACCOUNT FUNCTION
+                                            #----------------------#
 def delete_account(request):
     if request.method=='POST':
         user=request.user

@@ -69,8 +69,8 @@ class Register(UserCreationForm):
     def save(self, commit=False):
         user = super().save(commit=False)
 
-        user.cod = str(uuid.uuid4())  # Unique code generated with UUID
-        user.email_confirmat = False  # Initially, the email is not confirmed
+        user.code = str(uuid.uuid4())  # Unique code generated with UUID
+        user.email_confirm = False  # Initially, the email is not confirmed
 
         if commit:
             user.save()  # Save the user in the database
