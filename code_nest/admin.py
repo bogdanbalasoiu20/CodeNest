@@ -48,15 +48,25 @@ class TestAdmin(admin.ModelAdmin):
     search_fields = ('title',)
 
 
+class AnswerInline(admin.TabularInline):
+    model = Answer
+    extra = 1  # Numărul de răspunsuri implicite pentru fiecare întrebare
+
+
+
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ( 'test', 'points')
+    list_display = ( 'test', 'text', 'points')
     search_fields = ('text',)
     list_filter = ('test',)
+    inlines = [AnswerInline]  # 
 
 
-@admin.register(Answer)
-class AnswerAdmin(admin.ModelAdmin):
-    list_display = ('question', 'option_label', 'text', 'is_correct')
-    list_filter = ('is_correct',)
-    search_fields = ('text', 'question__text')
+# @admin.register(Answer)
+# class AnswerAdmin(admin.ModelAdmin):
+#     list_display = ('question', 'option_label', 'text', 'is_correct')
+#     list_filter = ('is_correct',)
+#     search_fields = ('text', 'question__text')
+
+
+

@@ -90,3 +90,18 @@ def delete_account(request):
         logout(request)
         return redirect('home')
     return render(request,"delete_account_confirm.html")
+
+
+from django.shortcuts import render, redirect
+from .forms import QuestionForm
+
+def add_question(request):
+    if request.method == 'POST':
+        form = QuestionForm(request.POST)
+        if form.is_valid():
+            form.save()  # Salvează întrebarea și răspunsurile
+            return redirect('some-success-url')  # Redirect după salvare
+    else:
+        form = QuestionForm()
+
+    return render(request, 'add_question.html', {'form': form})

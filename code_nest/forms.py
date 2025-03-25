@@ -97,3 +97,43 @@ class ProfileForm(forms.ModelForm):
         if CustomUser.objects.filter(username=username).exclude(pk=self.instance.pk).exists():
             raise forms.ValidationError("The username is already taken")
         return username
+
+
+
+
+from .models import Question, Answer
+
+class AnswerInlineForm(forms.Form):
+    option = forms.CharField(max_length=1, widget=forms.Select(choices=[("A", "A"), ("B", "B"), ("C", "C"), ("D", "D"), ("E", "E")]))
+    text = forms.CharField(widget=forms.Textarea(attrs={'rows': 2, 'cols': 50}))
+    is_correct = forms.BooleanField(required=False)
+
+class QuestionForm(forms.ModelForm):
+    class Meta:
+        model = Question
+        fields = ['text', 'points']
+
+    # Răspunsuri (Multiple răspunsuri pe care le adăugăm din formular)
+    answers = forms.ModelMultipleChoiceField(
+        queryset=Answer.objects.all(),
+        required=False,
+        widget=forms.CheckboxSelectMultiple
+    )
+    
+    class Meta:
+        model = Question
+        fields = ['text', 'answers']
+
+    def save(self, commit=True):
+        question = super().save(commit=False)
+        if commit:
+            question.save()
+            # Salvează fiecare răspuns
+            for answer_data in self.cleaned_data['answers']:
+                Answer.objects.create(
+                    question=question,
+                    option_label=answer_data['option'],
+                    text=answer_data['text'],
+                    is_correct=answer_data['is_correct']
+                )
+        return question
