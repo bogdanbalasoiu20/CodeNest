@@ -1,5 +1,5 @@
-from django.shortcuts import render,redirect
-from .models import CustomUser
+from django.shortcuts import render,redirect, get_object_or_404
+from .models import CustomUser, Test, Question, Answer
 from django.http import HttpResponse
 from .forms import CustomAuthenticationForm, Register, ProfileForm
 from django.contrib.auth import login,logout
@@ -161,3 +161,33 @@ def delete_account(request):
         logout(request)
         return redirect('home')
     return render(request,"delete_account_confirm.html")
+
+                                            #----------------------#
+                                            #TAKE TEST FUNCTION
+                                            #----------------------#
+
+def take_test(request, test_id):
+    test = get_object_or_404(Test, id=test_id)
+    questions = test.questions.all().prefetch_related("answers")
+
+    if request.method == 'POST':
+        score = 0
+        total = questions.count()
+
+        for question in questions:
+            selected = request.POST.get(f"question_{question.id}")
+            if selected:
+                correct_answer = question.answers.filter(is_correct=True, option_label=selected).exists()
+                if correct_answer:
+                    score += question.points
+
+        return render(request, "test_result.html", {
+            "test": test,
+            "score": score,
+            "total": total
+        })
+
+    return render(request, "take_test.html", {
+        "test": test,
+        "questions": questions,
+    })

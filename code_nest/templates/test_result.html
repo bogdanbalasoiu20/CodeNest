@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>Rezultatul tău la testul "{{ test.title }}"</h2>
+  <p>Ai răspuns corect la <strong>{{ score }}</strong> din <strong>{{ total }}</strong> întrebări.</p>
+  <a href="{% url 'home' %}">Înapoi la home</a>
+{% endblock %}

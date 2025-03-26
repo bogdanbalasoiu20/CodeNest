@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>{{ test.title }}</h2>
+<p>{{ test.description }}</p>
+
+<form method="POST">
+  {% csrf_token %}
+  {% for question in questions %}
+    <div class="question">
+      <p><strong>{{ forloop.counter }}. {{ question.text }}</strong></p>
+      {% for answer in question.answers.all %}
+        <label>
+          <input type="radio" name="question_{{ question.id }}" value="{{ answer.option_label }}">
+          {{ answer.option_label }}) {{ answer.text }}
+        </label><br>
+      {% endfor %}
+    </div>
+    <hr>
+  {% endfor %}
+  <button type="submit">Trimite răspunsuri</button>
+</form>
+{% endblock %}
