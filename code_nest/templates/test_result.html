@@ -1,6 +1,16 @@
 {% extends "base.html" %}
 {% block content %}
-  <h2>Rezultatul tău la testul "{{ test.title }}"</h2>
-  <p>Ai răspuns corect la <strong>{{ score }}</strong> din <strong>{{ total }}</strong> întrebări.</p>
-  <a href="{% url 'home' %}">Înapoi la home</a>
+  <h2>Your result at "{{ test.title }}"</h2>
+
+  {% if score >= 5 %}
+    <h2>Congratulations! You passed the test!</h2>
+    <p>Your grade is <strong>{{ score }}</strong></p>
+  {% else %}
+    <h2>Unfortunately, you failed the test! :(</h2>
+    <p>Your grade is <strong>{{ score }}/10</strong></p>
+    <p>You can retake the test after two days. Good luck!</p> 
+  {% endif %}
+
+  <a href="{% url 'home' %}">Back to Home</a>
 {% endblock %}
+
