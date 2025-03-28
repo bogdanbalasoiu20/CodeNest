@@ -191,3 +191,8 @@ def take_test(request, test_id):
         "test": test,
         "questions": questions,
     })
+    
+    
+    
+def test_404(request):
+    return render(request,'404.html',status=404)

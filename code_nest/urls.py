@@ -27,5 +27,8 @@ urlpatterns = [
 
     #Tests
     path('test/<int:test_id>/', views.take_test, name='take_test'),
+    
+    #404
+    path('page404/',views.test_404,name='page404')
 
 ]
