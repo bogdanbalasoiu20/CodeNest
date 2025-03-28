@@ -1,3 +1,3 @@
 1) In settings.py am adaugat LOGIN_URL = 'login' pentru a fi redirectionat catre pagina de login daca incerc sa accesez pagina de profil fara sa a fi autentificat
-2) In settings.py am modificat campurile: DEBUG = False
-                                          ALLOWED_HOSTS = ['*']   pentru a avea o pagina 404 personalizata
+2) In settings.py puteti modifica: DEBUG = False
+                                  ALLOWED_HOSTS = ['*']  pentru a avea in permanenta pagina 404 personalizata, insa cred ca inca nu este cazul
