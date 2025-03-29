@@ -15,7 +15,8 @@ class CustomUser(AbstractUser):
     email_confirm = models.BooleanField(default=False) # Default unconfirmed email
     ranking_position = models.IntegerField(default= 0)
     XP = models.IntegerField(default=0)
-    
+    code = models.CharField(max_length=100, unique=True, null=True, blank=True) # Unique code for confirmation
+
     
     groups = models.ManyToManyField(
         "auth.Group",

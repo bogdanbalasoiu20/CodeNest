@@ -7,8 +7,11 @@ urlpatterns = [
     path("home/", views.home, name="home"),
     path("login/", views.custom_login_view, name="login"),
     path("logout/", views.logout_view, name="logout"),
+
+    #Register and email confrimation
     path("register/", views.register, name="register"),
-    
+    path('confirm_email/<str:code>/', views.confirm_email, name='confirm_email'),
+
     # Password reset views:
     path('password-reset/', auth_views.PasswordResetView.as_view(template_name='password_reset.html'), name='password_reset'),
     path('password-reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='password_reset_done.html'), name='password_reset_done'),
@@ -21,4 +24,8 @@ urlpatterns = [
     #Change password in profile page
     path('password_change/', auth_views.PasswordChangeView.as_view(template_name='password_change.html'), name='password_change'),
     path('password_change/done/', auth_views.PasswordChangeDoneView.as_view(template_name='password_change_done.html'), name='password_change_done'),
+
+    #Tests
+    path('test/<int:test_id>/', views.take_test, name='take_test'),
+
 ]
