@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect, get_object_or_404
 from .models import CustomUser, Test, Question, Answer
 from django.http import HttpResponse
-from .forms import CustomAuthenticationForm, Register, ProfileForm
+from .forms import CustomAuthenticationForm, Register, ProfileForm, QuestionForm
 from django.contrib.auth import login,logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -9,6 +9,7 @@ from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.conf import settings  
 import uuid
+
 
 def home(request):
     return render(request,'home.html') 
@@ -162,6 +163,19 @@ def delete_account(request):
         return redirect('home')
     return render(request,"delete_account_confirm.html")
 
+
+
+
+def add_question(request):
+    if request.method == 'POST':
+        form = QuestionForm(request.POST)
+        if form.is_valid():
+            form.save()  # Salvează întrebarea și răspunsurile
+            return redirect('some-success-url')  # Redirect după salvare
+    else:
+        form = QuestionForm()
+
+    return render(request, 'add_question.html', {'form': form})
                                             #----------------------#
                                             #TAKE TEST FUNCTION
                                             #----------------------#
