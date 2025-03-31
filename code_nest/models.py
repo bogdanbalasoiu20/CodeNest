@@ -141,3 +141,7 @@ class Answer(models.Model):
 
     def __str__(self):
         return f"{self.option_label}: {self.text}"
+    
+    class Meta:
+        ordering = ['option_label']
+

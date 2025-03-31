@@ -7,11 +7,11 @@
   {% csrf_token %}
   {% for question in questions %}
     <div class="question">
-      <p><strong>{{ forloop.counter }}. {{ question.text }}</strong></p>
+      <p><strong>{{ forloop.counter }}. {{ question.text|safe }}</strong></p>
       {% for answer in question.answers.all %}
         <label>
           <input type="radio" name="question_{{ question.id }}" value="{{ answer.option_label }}">
-          {{ answer.option_label }}) {{ answer.text }}
+          {{ answer.option_label }} : {{ answer.text }}
         </label><br>
       {% endfor %}
     </div>
