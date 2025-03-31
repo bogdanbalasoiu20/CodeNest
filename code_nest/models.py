@@ -99,7 +99,7 @@ class Review(models.Model):
                                         # TESTS MODEL
                                         # --------------------------
 class Test(models.Model):
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    categories = models.ManyToManyField(Category)
     title = models.CharField(max_length=255)
     description = models.TextField()
     difficulty = models.CharField(

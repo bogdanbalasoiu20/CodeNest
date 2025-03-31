@@ -43,9 +43,14 @@ class ReviewAdmin(admin.ModelAdmin):
 
 @admin.register(Test)
 class TestAdmin(admin.ModelAdmin):
-    list_display = ('title', 'category', 'difficulty', 'number_of_questions')
-    list_filter = ('difficulty', 'category')
+    list_display = ('id','title', 'get_categories', 'difficulty', 'number_of_questions')
+    list_filter = ('difficulty', 'categories')  
     search_fields = ('title',)
+
+    def get_categories(self, obj):
+        return ", ".join([cat.title for cat in obj.categories.all()])
+    get_categories.short_description = 'Categories'
+
 
 
 class AnswerInline(admin.TabularInline):
