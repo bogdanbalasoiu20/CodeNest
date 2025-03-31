@@ -1,15 +1,46 @@
-# Ignoră fișierele sensibile și generate automat
+# === Fișiere de configurare locale ===
 .env
-CodeNest/settings.py
+.env.local
+*.env
+*.local
 
-# Ignoră fișierele compilate Python
-*.pyc
+# === Setări locale (opțional) ===
+CodeNest/settings.py  # doar dacă conține parole/tokenuri locale
+
+# === Fișiere Python compilate ===
+*.py[cod]
 __pycache__/
+*/__pycache__/
+*.pyo
+*.pyd
 
-# Ignoră baza de date SQLite
+# === Fisiere temporare si backup ===
+*.log
+*.bak
+*.swp
+*.tmp
+
+# === Medii virtuale ===
+venv/
+.venv/
+ENV/
+env/
+python_env/
+env.bak/
+
+# === Baza de date locală ===
 db.sqlite3
 
-# Ignoră folderele de mediu virtual
-venv/
-*.venv/
-.env/
+# === Fișiere de cache pip ===
+pip-log.txt
+pip-delete-this-directory.txt
+
+# === Fișiere generate de editori ===
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# === Fișiere de sistem ===
+.DS_Store
+Thumbs.db
