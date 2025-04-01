@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect, get_object_or_404
-from .models import CustomUser, Test, Question, Answer
+from .models import CustomUser, Test, Question, Answer, TestResult
 from django.http import HttpResponse
 from .forms import CustomAuthenticationForm, Register, ProfileForm, QuestionForm
 from django.contrib.auth import login,logout
@@ -140,6 +140,7 @@ def confirm_email(request, code):
 @login_required
 def profile(request):
     user=request.user
+    
     if request.method=='POST':
         form=ProfileForm(request.POST,instance=user)
         if form.is_valid():
@@ -148,7 +149,12 @@ def profile(request):
     else:
         form=ProfileForm(instance=user)
         
-    return render(request,'profile.html',{'form':form})
+    test_results = user.test_results.select_related("test").order_by("-date_taken")
+
+    return render(request, 'profile.html', {
+        'form': form,
+        'test_results': test_results
+    })
 
 
                                             #----------------------#
@@ -194,7 +200,12 @@ def take_test(request, test_id):
                 correct_answer = question.answers.filter(is_correct=True, option_label=selected).exists()
                 if correct_answer:
                     score += question.points
-
+        if request.user.is_authenticated:
+            TestResult.objects.update_or_create(
+                user=request.user,
+                test=test,
+                defaults={'score': score}
+            )
         return render(request, "test_result.html", {
             "test": test,
             "score": score,
@@ -210,3 +221,5 @@ def take_test(request, test_id):
     
 def test_404(request):
     return render(request,'404.html',status=404)
+
+

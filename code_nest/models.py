@@ -145,3 +145,18 @@ class Answer(models.Model):
     class Meta:
         ordering = ['option_label']
 
+                                        # --------------------------
+                                        # TESTRESULT MODEL
+                                        # --------------------------
+
+class TestResult(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="test_results")
+    test = models.ForeignKey(Test, on_delete=models.CASCADE)
+    score = models.FloatField()
+    date_taken = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("user", "test")  # Opțional: un user poate da testul o singură dată
+
+    def __str__(self):
+        return f"{self.user.username} - {self.test.title}: {self.score} puncte"
