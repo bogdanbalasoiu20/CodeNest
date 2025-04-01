@@ -1,15 +1,22 @@
 from django.contrib import admin
 from .models import (
     CustomUser, Category, Course, CourseEnrollment, 
-    Review, Test, Question, Answer
+    Review, Test, Question, Answer,TestResult
 )
 
+
+class TestResultInline(admin.TabularInline):  # Sau admin.StackedInline pentru un layout diferit
+    model = TestResult
+    extra = 0  # Nu afișa câmpuri goale în plus
+    readonly_fields = ('test', 'score', 'date_taken')  # Opțional: face câmpurile readonly
+    #can_delete = False  # Opțional: dezactivează ștergerea din inline
 
 @admin.register(CustomUser)
 class CustomUserAdmin(admin.ModelAdmin):
     list_display = ('username', 'email', 'age', 'ranking_position', 'XP', 'email_confirm', 'is_staff', 'is_superuser')
     search_fields = ('username', 'email')
     list_filter = ('email_confirm', 'ranking_position', 'is_staff', 'is_superuser')
+    inlines = [TestResultInline]
 
 
 @admin.register(Category)
@@ -58,10 +65,9 @@ class AnswerInline(admin.TabularInline):
     extra = 1  # Numărul de răspunsuri implicite pentru fiecare întrebare
 
 
-
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ( 'test', 'text', 'points')
+    list_display = ('id', 'test', 'text', 'points')
     search_fields = ('text',)
     list_filter = ('test',)
     inlines = [AnswerInline]  # 

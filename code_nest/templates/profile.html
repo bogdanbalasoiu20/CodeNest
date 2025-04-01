@@ -13,12 +13,12 @@
 
   <hr>
 
-  <h3>Rezultatele tale la teste</h3>
+  <h3>Your test results</h3>
   <ul>
       {% for result in test_results %}
-          <li>{{ result.test.title }} - {{ result.score }} puncte ({{ result.date_taken|date:"d.m.Y H:i" }})</li>
+          <li>{{ result.test.title }} - {{ result.score }} points ({{ result.date_taken|date:"d.m.Y H:i" }})</li>
       {% empty %}
-          <li>Nu ai completat încă niciun test.</li>
+          <li>You haven't completed any tests yet.</li>
       {% endfor %}
   </ul>
 
