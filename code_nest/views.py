@@ -236,3 +236,19 @@ def test_404(request):
     return render(request,'404.html',status=404)
 
 
+
+                                            #----------------------#
+                                            #LEADERBOARD FUNCTION
+                                            #----------------------#
+def leaderboard(request):
+    top_user=list(CustomUser.objects.order_by('-XP'))
+    
+    
+    for index,user in enumerate(top_user):
+        new_pos=index+1
+        if new_pos != user.ranking_position:
+            user.ranking_position=new_pos
+            user.save()
+            
+    
+    return render(request,'leaderboard.html',{'top_user':top_user})

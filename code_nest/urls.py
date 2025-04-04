@@ -29,6 +29,9 @@ urlpatterns = [
     path('test/<int:test_id>/', views.take_test, name='take_test'),
     
     #404
-    path('page404/',views.test_404,name='page404')
+    path('page404/',views.test_404,name='page404'),
+    
+    #leaderboard
+    path('leaderboard/',views.leaderboard,name="leaderboard"),
 
 ]
