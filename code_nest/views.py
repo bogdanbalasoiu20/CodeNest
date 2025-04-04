@@ -206,6 +206,19 @@ def take_test(request, test_id):
                 test=test,
                 defaults={'score': score}
             )
+            
+            #calcularea xp-ului in functie de dificultatea testului
+            xp_points=request.user.XP
+            if(test.difficulty.lower()=="beginner"):
+                xp_points+=score*10
+            elif(test.difficulty.lower()=="intermediate"):
+                xp_points+=score*10*1.5
+            else:
+                xp_points+=score*10*3
+                
+            request.user.XP=xp_points
+            request.user.save()
+            
         return render(request, "test_result.html", {
             "test": test,
             "score": score,
