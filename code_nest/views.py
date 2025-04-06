@@ -187,6 +187,10 @@ def add_question(request):
                                             #----------------------#
 
 def take_test(request, test_id):
+    if not request.user.is_authenticated:
+        messages.info(request,"Before solving a test, you must be logged in")
+        return redirect('login')
+    
     test = get_object_or_404(Test, id=test_id)
     questions = test.questions.all().prefetch_related("answers")
 
