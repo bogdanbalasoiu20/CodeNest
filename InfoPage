@@ -1,3 +1,9 @@
 1) In settings.py am adaugat LOGIN_URL = 'login' pentru a fi redirectionat catre pagina de login daca incerc sa accesez pagina de profil fara sa a fi autentificat
 2) In settings.py puteti modifica: DEBUG = False
                                   ALLOWED_HOSTS = ['*']  pentru a avea in permanenta pagina 404 personalizata, insa cred ca inca nu este cazul
+
+3) de adaugat in settings.py :
+STATIC_URL = 'static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'code_nest/static')]
+
+pentru css/js
