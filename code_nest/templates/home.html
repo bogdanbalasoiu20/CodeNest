@@ -6,11 +6,25 @@
     <title>{% block title %}Home{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/test.css' %}">
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
 </head>
 <body>
     <header>
-        <h1>Home page</h1>
+        <a href="{% url 'home' %}">
+            <img class="logo" src="{% static 'images/logo.png' %}" alt="logo">
+        </a>
+        <nav>
+            <ul class="nav__links">
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Tests</a></li>
+                <li><a href="#">Courses</a></li>
+                <li><a href="#">About</a></li>
+            </ul>
+        </nav>
+        <div class="auth-buttons">
+            <a class="login" href="{% url 'login' %}"><button>Login</button></a>
+            <a class="signup" href="{% url 'register' %}"><button>Sign up</button></a>
+        </div>
     </header>
 
     <main>
