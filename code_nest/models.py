@@ -3,6 +3,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from datetime import date
 from django.utils import timezone
+from django.utils.text import slugify
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 
@@ -50,11 +51,21 @@ class Course(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     difficulty = models.CharField(
-        max_length=50, choices=[("Beginner", "Beginner"), ("Intermediate", "Intermediate"), ("Advanced", "Advanced")], 
+        max_length=50,
+        choices=[("Beginner", "Beginner"), ("Intermediate", "Intermediate"), ("Advanced", "Advanced")],
         default="Beginner"
     )
     price = models.DecimalField(max_digits=10, decimal_places=2)
     is_free = models.BooleanField(default=False)
+    image = models.ImageField(upload_to='course_images/', blank=True, null=True)
+    slug = models.SlugField(blank=True, null=True)
+
+    is_published = models.BooleanField(default=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title

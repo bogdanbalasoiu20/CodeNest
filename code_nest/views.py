@@ -255,3 +255,9 @@ def leaderboard(request):
             
     
     return render(request,'leaderboard.html',{'top_user':top_user})
+
+from .models import Course
+
+def course_list(request):
+    courses = Course.objects.filter(is_published=True)
+    return render(request, 'courses.html', {'courses': courses})

@@ -1,0 +1,91 @@
+.course-card {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 10px;
+    display: inline-block;
+    width: 250px;
+    vertical-align: top;
+}
+.course-card img {
+    width: 100%;
+    height: auto;
+}
+
+@import url('https://fonts.googleapis.com/css?family=Montserrat:500');
+
+
+li,a,button{
+    font-family: "Montserrat",sans-serif;
+    font-weight: 500;
+    font-size:16px;
+    color: #edf0f1;
+    text-decoration: none;
+}
+
+body{
+    background-color: #1E1F26;
+    color:#F4F4F4;
+    margin:0;
+    padding: 0;
+}
+
+
+.logo {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 500;
+    font-size: 1.5rem;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.logo-icon {
+    /* Simple nest icon using CSS */
+    width: 24px;
+    height: 24px;
+    border: 2px solid #0088A9;
+    border-radius: 50%;
+    position: relative;
+}
+
+.logo-icon::before {
+    content: "<>";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 10px;
+}
+
+
+
+button{
+    padding: 9px 25px;
+    background-color: rgba(0,136,169,1);
+    border:none;
+    border-radius: 50px;
+    cursor:pointer;
+    transition: all 0.3s ease 0s;
+}
+
+button:hover{
+    background-color: rgba(0,136,169,0.8);
+}
+
+
+.signup button {
+    background-color: rgba(155, 155, 155, 0.3); 
+}
+
+.signup button:hover {
+    background-color: rgba(155, 155, 155, 0.5);
+}
+
+.logout button {
+    background-color: rgba(155, 155, 155, 0.3); 
+}
+
+.logout button:hover {
+    background-color: rgba(155, 155, 155, 0.5);
+}

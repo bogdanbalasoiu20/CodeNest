@@ -33,5 +33,7 @@ urlpatterns = [
     
     #leaderboard
     path('leaderboard/',views.leaderboard,name="leaderboard"),
+    
+    path('courses/', views.course_list, name='course_list'),
 
 ]
