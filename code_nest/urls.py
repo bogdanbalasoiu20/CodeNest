@@ -33,5 +33,8 @@ urlpatterns = [
     
     #leaderboard
     path('leaderboard/',views.leaderboard,name="leaderboard"),
+    
+    #Tests page
+    path('tests/',views.testsPage,name="testsPage"), 
 
 ]
