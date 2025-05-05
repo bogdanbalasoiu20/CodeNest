@@ -15,9 +15,10 @@
         <nav>
             <ul class="nav__links">
                 <li><a href="{% url 'home' %}">Home</a></li>
-                <li><a href="#">Tests</a></li>
+                <li><a href="{% url 'testsPage' %}">Tests</a></li>
                 <li><a href="{% url 'course_list' %}">Courses</a></li>
                 <li><a href="#">About</a></li>
+                
             </ul>
         </nav>
         {%if not user.is_authenticated %}

@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Test List{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/base.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="filter-container">
+    <h2>Filtrează teste</h2>
+    <form method="get">
+        {{ form.as_p }}
+        <button type="submit" class="btn-filter">Aplică filtre</button>
+        <a href="{% url 'testsPage' %}" class="btn-reset">Resetează</a>
+    </form>
+</div>
+
+<div class="tests-grid">
+    {% for test in tests %}
+    <div class="test-card">
+        <h3>{{ test.title }}</h3>
+        <p>{{ test.description|truncatechars:100 }}</p>
+        <div class="test-meta">
+            <span class="difficulty {{ test.difficulty|lower }}">
+                {{ test.get_difficulty_display }}
+            </span>
+            <span class="question-count">{{ test.number_of_questions }} întrebări</span>
+        </div>
+    </div>
+    {% empty %}
+    <p class="no-results">Nu s-au găsit teste care să corespundă filtrelor.</p>
+    {% endfor %}
+</div>
+{% endblock %}

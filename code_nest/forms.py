@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.forms import UserCreationForm
-from .models import CustomUser
+from .models import CustomUser,Test, Category
 from django.core.exceptions import ValidationError
 import re
 import uuid
@@ -137,3 +137,19 @@ class QuestionForm(forms.ModelForm):
                     is_correct=answer_data['is_correct']
                 )
         return question
+    
+    
+class TestFilterForm(forms.Form):
+    categories = forms.ModelMultipleChoiceField(
+        queryset=Category.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+    
+    difficulty = forms.ChoiceField(
+        choices=Test._meta.get_field('difficulty').choices,
+        widget=forms.RadioSelect,
+        required=False,
+        label='Dificultate'
+    )
+    

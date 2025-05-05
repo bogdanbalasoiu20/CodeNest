@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect, get_object_or_404
 from .models import CustomUser, Test, Question, Answer, TestResult
 from django.http import HttpResponse
-from .forms import CustomAuthenticationForm, Register, ProfileForm, QuestionForm
+from .forms import CustomAuthenticationForm, Register, ProfileForm, QuestionForm, TestFilterForm
 from django.contrib.auth import login,logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -256,8 +256,25 @@ def leaderboard(request):
     
     return render(request,'leaderboard.html',{'top_user':top_user})
 
-from .models import Course
+from .models import Course, Test
+from .forms import TestFilterForm
 
 def course_list(request):
     courses = Course.objects.filter(is_published=True)
     return render(request, 'courses.html', {'courses': courses})
+
+def testsPage(request):
+    form = TestFilterForm(request.GET or None)
+    tests = Test.objects.all()
+    
+    if form.is_valid():
+        if form.cleaned_data['categories']:
+            tests = tests.filter(categories__in=form.cleaned_data['categories'])
+        
+        if form.cleaned_data['difficulty']:
+            tests = tests.filter(difficulty=form.cleaned_data['difficulty'])
+    
+    return render(request, 'testsPage.html', {
+        'form': form,
+        'tests': tests
+    })
