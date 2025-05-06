@@ -10,6 +10,9 @@ header{
     justify-content: space-between;
     align-items: center;
     padding: 30px 10%;
+    position: fixed;
+    top: 0; 
+    z-index: 1000; 
 }
 
 li,a,button{
@@ -25,6 +28,7 @@ body{
     color:#F4F4F4;
     margin:0;
     padding: 0;
+    padding-top: 100px;
 }
 
 /* .logo {

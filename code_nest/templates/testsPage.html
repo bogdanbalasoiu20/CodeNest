@@ -5,32 +5,102 @@
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/base.css' %}">
+<link rel="stylesheet" href="{% static 'css/test_list.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="filter-container">
-    <h2>Filtrează teste</h2>
-    <form method="get">
-        {{ form.as_p }}
-        <button type="submit" class="btn-filter">Aplică filtre</button>
-        <a href="{% url 'testsPage' %}" class="btn-reset">Resetează</a>
-    </form>
-</div>
-
-<div class="tests-grid">
-    {% for test in tests %}
-    <div class="test-card">
-        <h3>{{ test.title }}</h3>
-        <p>{{ test.description|truncatechars:100 }}</p>
-        <div class="test-meta">
-            <span class="difficulty {{ test.difficulty|lower }}">
-                {{ test.get_difficulty_display }}
-            </span>
-            <span class="question-count">{{ test.number_of_questions }} întrebări</span>
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">Our Tests</h1>
+    </div>
+    <!-- Filtru expandabil -->
+    <div class="filter-section">
+        <div class="filter-header">
+            {% comment %} <h2 class="filter-title">Filtrează teste</h2> {% endcomment %}
+            <button class="filter-toggle-btn" id="filterToggle">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                </svg>
+                Filter
+            </button>
+        </div>
+        
+        <div class="filter-content" id="filterContent">
+            <form method="get" id="filterForm">
+                <div class="filter-columns">
+                    {% for field in form %}
+                    <div class="filter-group">
+                        <h3 class="filter-group-title">{{ field.label }}</h3>
+                        <div class="filter-options">
+                            {% for choice in field %}
+                            <label class="filter-option">
+                                <input type="checkbox" name="{{ field.name }}" value="{{ choice.data.value }}" 
+                                       {% if choice.data.selected %}checked{% endif %}>
+                                <span class="checkmark"></span>
+                                <span class="option-label">{{ choice.choice_label }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="filter-actions">
+                    <button type="submit" class="btn-filter">Apply Filters</button>
+                    <a href="{% url 'testsPage' %}" class="btn-reset">Reset</a>
+                </div>
+            </form>
         </div>
     </div>
-    {% empty %}
-    <p class="no-results">Nu s-au găsit teste care să corespundă filtrelor.</p>
-    {% endfor %}
+
+    <!-- Restul conținutului -->
+    <div class="tests-grid">
+        {% for test in tests %}
+        <div class="test-card">
+            <h3>{{ test.title }}</h3>
+            <p>{{ test.description|truncatechars:100 }}</p>
+            <div class="test-meta">
+                <span class="difficulty {{ test.difficulty|lower }}">
+                    {{ test.get_difficulty_display }}
+                </span>
+                <span class="question-count">{{ test.number_of_questions }} questions</span>
+            </div>
+        </div>
+        {% empty %}
+        <p class="no-results">No test found</p>
+        {% endfor %}
+    </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filterToggle = document.getElementById('filterToggle');
+    const filterContent = document.getElementById('filterContent');
+    
+    // Toggle filtru
+    filterToggle.addEventListener('click', function() {
+        this.classList.toggle('active');
+        filterContent.classList.toggle('active');
+    });
+    
+    // Închide filtru la click în afara
+    document.addEventListener('click', function(e) {
+        if (!filterToggle.contains(e.target) && !filterContent.contains(e.target)) {
+            filterToggle.classList.remove('active');
+            filterContent.classList.remove('active');
+        }
+    });
+    
+    // Permite deselectarea checkbox-urilor
+    document.querySelectorAll('.filter-option input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('click', function(e) {
+            if (this.checked && e.ctrlKey) {
+                this.checked = false;
+                // Forțează trimiterea formularului la deselectare
+                document.getElementById('filterForm').submit();
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

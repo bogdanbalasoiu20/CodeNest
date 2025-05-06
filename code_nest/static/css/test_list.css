@@ -1,0 +1,429 @@
+/* static/css/test_list.css */
+
+/* Container styling */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    position: relative;
+    padding-top: 1.5rem;
+}
+
+.page-header {
+    margin: 2rem 0 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.page-title {
+    font-size: 1.8rem;
+    color: #f4f4f4;
+    font-weight: 600;
+    margin: 0;
+    position: relative;
+    padding-bottom: 0.5rem;
+}
+
+.page-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #0088a9, #6803c7);
+}
+
+/* Filtru expandabil */
+.filter-section {
+    margin-bottom: 2rem;
+}
+
+.filter-header {
+    display: flex;
+    justify-content: flex-start; /* Schimbat din space-between în flex-start */
+    align-items: center;
+    margin-bottom: 1rem;
+    gap: 1rem; /* Adăugat spațiu între elemente */
+}
+
+.filter-title {
+    font-size: 1.25rem;
+    color: #f4f4f4;
+    font-weight: 600;
+    margin: 0;
+    order: 2; /* Mută titlul după buton */
+}
+
+.filter-toggle-btn {
+    order: 1; /* Mută butonul înaintea titlului */
+    /* Păstrează restul proprietăților existente */
+    background: rgba(0, 136, 169, 0.2);
+    border: 1px solid rgba(0, 136, 169, 0.3);
+    color: #f4f4f4;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.filter-toggle-btn:hover {
+    background: rgba(0, 136, 169, 0.3);
+    transform: translateY(-1px);
+}
+
+.filter-toggle-btn svg {
+    transition: transform 0.3s ease;
+}
+
+.filter-toggle-btn.active svg {
+    transform: rotate(180deg);
+}
+
+.filter-content {
+    display: none;
+    background: rgba(40, 42, 50, 0.98);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    animation: fadeIn 0.3s ease;
+}
+
+.filter-content.active {
+    display: block;
+}
+
+.filter-columns {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 2rem;
+}
+
+.filter-group {
+    margin-bottom: 1.5rem;
+}
+
+.filter-group-title {
+    font-size: 1rem;
+    color: #f4f4f4;
+    margin-bottom: 1.2rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.filter-group-title::before {
+    content: '';
+    display: block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0088a9, #00a9b7);
+}
+
+.filter-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+/* Stilizare checkbox-uri îmbunătățită */
+.filter-option {
+    display: block;
+    position: relative;
+    padding-left: 32px;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s ease;
+}
+
+.filter-option:hover {
+    transform: translateX(4px);
+}
+
+.filter-option input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 2px solid #555;
+    border-radius: 5px;
+    transition: all 0.2s ease;
+}
+
+.filter-option:hover .checkmark {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: #666;
+}
+
+.filter-option input:checked ~ .checkmark {
+    background-color: #0088a9;
+    border-color: #0088a9;
+    box-shadow: 0 0 0 2px rgba(0, 136, 169, 0.3);
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.filter-option input:checked ~ .checkmark:after {
+    display: block;
+}
+
+.filter-option .option-label {
+    color: #ddd;
+    font-size: 0.95rem;
+    margin-left: 8px;
+    transition: color 0.2s ease;
+    line-height: 1.4;
+}
+
+.filter-option:hover .option-label {
+    color: #f4f4f4;
+}
+
+/* Butoane filtru */
+.filter-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1.2rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-filter,
+.btn-reset {
+    padding: 0.8rem 1.8rem;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    font-size: 0.95rem;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-filter {
+    background: linear-gradient(135deg, #0088a9, #006a84);
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 136, 169, 0.25);
+}
+
+.btn-filter:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 136, 169, 0.35);
+}
+
+.btn-reset {
+    background: rgba(255, 255, 255, 0.1);
+    color: #f4f4f4;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-reset:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+/* Grid teste */
+.tests-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+    padding: 0;
+}
+
+/* Carduri teste */
+.test-card {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 1.75rem;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    min-height: 220px;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+    animation: fadeIn 0.4s ease forwards;
+}
+
+.test-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #0088a9, #00a9b7);
+    opacity: 0.8;
+}
+
+.test-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+    border-color: rgba(0, 136, 169, 0.7);
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.test-card h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.3rem;
+    color: #f4f4f4;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.test-card p {
+    color: #ccc;
+    margin: 0 0 1.5rem 0;
+    flex-grow: 1;
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+/* Meta-informații */
+.test-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.difficulty {
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.difficulty.easy {
+    background-color: rgba(40, 167, 69, 0.15);
+    color: #28a745;
+}
+
+.difficulty.medium {
+    background-color: rgba(255, 193, 7, 0.15);
+    color: #ffc107;
+}
+
+.difficulty.hard {
+    background-color: rgba(220, 53, 69, 0.15);
+    color: #dc3545;
+}
+
+.question-count {
+    font-size: 0.9rem;
+    color: #aaa;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.question-count::before {
+    content: '•';
+    color: rgba(255, 255, 255, 0.3);
+}
+
+/* Mesaj fără rezultate */
+.no-results {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 3rem 2rem;
+    color: #aaa;
+    font-size: 1.2rem;
+    background-color: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+/* Animații */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Întârzieri animații carduri */
+.test-card:nth-child(1) { animation-delay: 0.1s; }
+.test-card:nth-child(2) { animation-delay: 0.2s; }
+.test-card:nth-child(3) { animation-delay: 0.3s; }
+.test-card:nth-child(4) { animation-delay: 0.4s; }
+
+/* Responsiv */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+    
+    .filter-columns {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .filter-group {
+        margin-bottom: 1.2rem;
+    }
+    
+    .filter-options {
+        gap: 0.6rem;
+    }
+    
+    .tests-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .test-card {
+        min-height: auto;
+        padding: 1.5rem;
+    }
+    
+    .filter-actions {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .btn-filter,
+    .btn-reset {
+        padding: 0.7rem 1.5rem;
+        width: 100%;
+        justify-content: center;
+    }
+}

@@ -150,6 +150,6 @@ class TestFilterForm(forms.Form):
         choices=Test._meta.get_field('difficulty').choices,
         widget=forms.RadioSelect,
         required=False,
-        label='Dificultate'
+        label='Difficulty'
     )
     
