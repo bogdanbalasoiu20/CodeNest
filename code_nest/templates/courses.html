@@ -23,7 +23,11 @@
                         {{ course.price }} RON
                     {% endif %}
                 </strong></p>
-                <button>Cumpără</button>
+                <a href="{% url 'course_payment' course.slug %}">
+                    <button>Cumpără</button>
+                </a>
+                
+                
             </div>
         {% endfor %}
     </div>

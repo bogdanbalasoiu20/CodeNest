@@ -261,3 +261,40 @@ from .models import Course
 def course_list(request):
     courses = Course.objects.filter(is_published=True)
     return render(request, 'courses.html', {'courses': courses})
+
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from .models import Course, CourseEnrollment
+
+@login_required
+def enroll_course(request, slug):
+    course = get_object_or_404(Course, slug=slug)
+
+    # Verifică dacă userul este deja înscris
+    enrollment, created = CourseEnrollment.objects.get_or_create(
+        user=request.user,
+        course=course,
+        defaults={
+            'status': 'unstarted',
+            'payment_method': 'free' if course.is_free else 'card',
+        }
+    )
+
+    # Dacă era deja înscris, nu face nimic nou
+    return redirect('enrollment_confirmation', slug=course.slug)
+
+def enrollment_confirmation(request, slug):
+    course = get_object_or_404(Course, slug=slug)
+    return render(request, 'course_enrolled.html', {'course': course})
+
+from django.views.decorators.http import require_POST
+
+@login_required
+def course_payment(request, slug):
+    course = get_object_or_404(Course, slug=slug)
+
+    if request.method == 'POST':
+        # aici poți simula că "s-a plătit"
+        return redirect('enroll_course', slug=slug)
+
+    return render(request, 'course_payment.html', {'course': course})
