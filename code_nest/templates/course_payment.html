@@ -1,0 +1,13 @@
+<h2>Plătește pentru: {{ course.title }}</h2>
+<p>Preț: {{ course.price }} RON</p>
+
+<form method="post">
+    {% csrf_token %}
+    <label for="method">Alege metoda de plată:</label>
+    <select name="payment_method" id="method">
+        <option value="card">Card</option>
+        <option value="paypal">PayPal</option>
+    </select>
+    <br><br>
+    <button type="submit">Plătește</button>
+</form>

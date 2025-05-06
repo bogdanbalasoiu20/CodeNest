@@ -37,4 +37,13 @@ urlpatterns = [
     path('courses/', views.course_list, name='course_list'),
     path('tests/', views.testsPage, name='testsPage'),
 
+    
+    path('courses/<slug:slug>/enroll/', views.enroll_course, name='enroll_course'),
+
+    path('courses/<slug:slug>/confirmare/', views.enrollment_confirmation, name='enrollment_confirmation'),
+
+    # urls.py
+    path('courses/<slug:slug>/payment/', views.course_payment, name='course_payment')
+
+
 ]
