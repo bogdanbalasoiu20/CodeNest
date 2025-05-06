@@ -1,2 +1,14 @@
-<h2>Te-ai înscris la cursul "{{ course.title }}"!</h2>
-<a href="{% url 'home' %}">Înapoi la pagina principală</a>
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Inscriere curs</title>
+    <link rel="stylesheet" href="{% static 'css/courses.css' %}">
+</head>
+<body>
+
+
+    <h2>Te-ai înscris la cursul "{{ course.title }}"!</h2>
+    <a href="{% url 'home' %}">Înapoi la pagina principală</a>
+</body>
