@@ -427,3 +427,92 @@
         justify-content: center;
     }
 }
+
+Ajustări pentru container cu rachetă
+.container {
+    margin-left: 100px; /* Face loc pentru animație */
+    transition: margin-left 0.3s ease;
+}
+
+@media (max-width: 1200px) {
+    .container {
+        margin-left: 20px; /* Revine la normal pe ecrane mici */
+    }
+}
+
+
+/* Animatie racheta */
+.rocket-animation {
+    position: fixed;
+    left: 2%;
+    bottom: 5%;
+    width: 80px;
+    height: 80px;
+    z-index: 99;
+    pointer-events: none;
+    opacity: 0;
+    animation: flyRocket 8s infinite;
+}
+
+@keyframes flyRocket {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    50% {
+        transform: translateY(-100px) rotate(5deg);
+    }
+    100% {
+        transform: translateY(-100vh) rotate(10deg);
+        opacity: 0;
+    }
+}
+
+.rocket-animation::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    width: 10px;
+    height: 100px;
+    background: linear-gradient(to top, rgba(0,136,169,0.8), transparent);
+    transform: translateX(-50%) perspective(100px) rotateX(45deg);
+    filter: blur(5px);
+    opacity: 0;
+    animation: rocketFire 8s infinite;
+}
+
+@keyframes rocketFire {
+    10%, 90% {
+        opacity: 1;
+        height: 150px;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+.rocket {
+    width: 100%;
+    height: 100%;
+    fill: url(#rocketGradient);
+    filter: drop-shadow(0 0 8px rgba(0, 136, 169, 0.8));
+}
+
+@media (min-width: 1600px) {
+    .rocket-animation {
+        width: 100px;
+        height: 100px;
+        left: 3%;
+    }
+}
+
+/* Doar pe ecrane mari */
+@media (max-width: 1200px) {
+    .rocket-animation {
+        display: none;
+    }
+}

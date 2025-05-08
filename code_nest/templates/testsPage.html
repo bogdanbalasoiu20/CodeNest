@@ -10,6 +10,18 @@
 
 {% block content %}
 <div class="container">
+    <div class="rocket-animation">
+        <svg viewBox="0 0 24 24" class="rocket">
+            <defs>
+                <linearGradient id="rocketGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#0088a9" />
+                    <stop offset="100%" stop-color="#00a9b7" />
+                </linearGradient>
+            </defs>
+            <path d="M12 2.5c0 0 4.5 2.04 4.5 10.5 0 2.49-1.04 5.57-1.6 7H9.1c-.56-1.43-1.6-4.51-1.6-7C7.5 4.54 12 2.5 12 2.5zm2 8.5c0-1.1-.9-2-2-2s-2 .9-2 2 .9 2 2 2 2-.9 2-2zm-6.31 9.52c-.48-1.23-1.52-4.17-1.67-6.87l-1.13.75c-.56.38-.89 1-.89 1.67v3.28c0 .83.67 1.5 1.5 1.5h1.25c.17 0 .34-.02.5-.05.17.03.33.05.5.05h2.25c.17 0 .34-.02.5-.05.17.03.33.05.5.05h1.25c.83 0 1.5-.67 1.5-1.5v-3.28c0-.67-.33-1.29-.89-1.67l-1.13-.75c-.15 2.7-1.2 5.64-1.67 6.87-.08.21-.26.35-.47.35H8.14c-.21 0-.39-.14-.47-.35z"/>
+        </svg>
+    </div>
+
     <div class="page-header">
         <h1 class="page-title">Our Tests</h1>
     </div>
@@ -74,6 +86,25 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const rocket = document.querySelector('.rocket-animation');
+            
+            function launchRocket() {
+                rocket.style.animation = 'none';
+                void rocket.offsetWidth; // Reset animation
+                rocket.style.animation = 'flyRocket 8s infinite';
+            }
+            
+            // Lansare inițială
+            launchRocket();
+            
+            // Repetă la fiecare 10 secunde
+            setInterval(launchRocket, 10000);
+            
+            // Pornește animația când pagina e vizibilă
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) launchRocket();
+            });
+
     const filterToggle = document.getElementById('filterToggle');
     const filterContent = document.getElementById('filterContent');
     
