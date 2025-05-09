@@ -118,6 +118,7 @@ class Test(models.Model):
         default="Beginner"
     )
     number_of_questions = models.IntegerField()
+    image = models.ImageField(upload_to='tests/', default='tests/default.png')
 
     def __str__(self):
         return self.title

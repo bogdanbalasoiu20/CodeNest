@@ -65,23 +65,37 @@
         </div>
     </div>
 
-    <!-- Restul conținutului -->
     <div class="tests-grid">
-        {% for test in tests %}
-        <div class="test-card">
-            <h3>{{ test.title }}</h3>
-            <p>{{ test.description|truncatechars:100 }}</p>
-            <div class="test-meta">
-                <span class="difficulty {{ test.difficulty|lower }}">
-                    {{ test.get_difficulty_display }}
-                </span>
-                <span class="question-count">{{ test.number_of_questions }} questions</span>
+    {% for test in tests %}
+    <div class="test-card">
+        <div class="test-image-container">
+            {% if test.image %}
+                <img src="{{ test.image.url }}" alt="{{ test.title }}" class="test-image">
+            {% else %}
+                <div class="default-image">
+                    <svg class="placeholder-icon"><!-- SVG pentru iconiță implicită --></svg>
+                </div>
+            {% endif %}
+            <div class="test-difficulty {{ test.difficulty|lower }}">
+                {{ test.get_difficulty_display }}
             </div>
         </div>
-        {% empty %}
-        <p class="no-results">No test found</p>
-        {% endfor %}
+        
+        <div class="test-content">
+            <h3>{{ test.title }}</h3>
+            {% comment %} <div class="test-description">
+                <p>{{ test.description|truncatechars:100 }}</p>
+            </div> {% endcomment %}
+            <div class="test-meta">
+                <span class="question-count">{{ test.number_of_questions }} questions</span>
+                <button class="start-button">See Test</button>
+            </div>
+        </div>
     </div>
+    {% empty %}
+    <p class="no-results">No test found</p>
+    {% endfor %}
+</div>
 </div>
 
 <script>
