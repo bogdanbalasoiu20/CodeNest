@@ -7,3 +7,17 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'code_nest/static')]
 
 pentru css/js
+
+4) de adaugat in settings.py:
+   MEDIA_URL = '/media/'
+  MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+  de adaugat in CodeNest/urls.py:
+
+    from django.conf import settings
+from django.conf.urls.static import static
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path("code_nest/", include("code_nest.urls")),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
