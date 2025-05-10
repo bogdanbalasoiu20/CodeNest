@@ -315,3 +315,16 @@ def course_payment(request, slug):
         return redirect('enroll_course', slug=slug)
 
     return render(request, 'course_payment.html', {'course': course})
+
+
+
+
+                                            #----------------------#
+                                            #TEST DETAILS
+                                            #----------------------#
+                                            
+                                            
+def testDetails(request,test_id):
+    test = get_object_or_404(Test, id=test_id)
+    
+    return render(request,'test_details.html',{'test':test})                                            

@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ test.title }} - Code Nest{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/base.css' %}">
+<link rel="stylesheet" href="{% static 'css/test_details.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="test-details">
+    <div class="test-header">
+        <h1>{{ test.title }}</h1>
+        <div class="test-meta">
+            <span>{{ test.difficulty }}</span>
+            <span>{{ test.number_of_questions }} Questions</span>
+        </div>
+    </div>
+
+    <div class="test-description">
+        <h2>Description:</h2>
+        <p>{{ test.description }}</p>
+    </div>
+
+    <div class="test-categories">
+        <h2>Categories:</h2>
+        <ul>
+            {% for category in test.categories.all %}
+                <li>{{ category.title }}</li>
+            {% empty %}
+                <li>No categories specified</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="start-test">
+        {% comment %} <a href="{% url 'start_test' test.id %}" class="start-test-button">Start Test</a> {% endcomment %}
+    </div>
+</div>
+{% endblock %}

@@ -88,7 +88,7 @@
             </div> {% endcomment %}
             <div class="test-meta">
                 <span class="question-count">{{ test.number_of_questions }} questions</span>
-                <button class="start-button">See Test</button>
+                <button class="start-button" data-url="{% url 'test_details' test.id %}">See Test</button>
             </div>
         </div>
     </div>
@@ -146,6 +146,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    document.querySelectorAll('.start-button').forEach(button => {
+    button.addEventListener('click', function() {
+        window.location.href = button.getAttribute('data-url');
+    });
+});
+
 });
 </script>
 {% endblock %}
