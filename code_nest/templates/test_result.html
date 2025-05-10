@@ -11,6 +11,12 @@
     <p>You can retake the test after two days. Good luck!</p> 
   {% endif %}
 
+  {% if perfect_score %}
+<div class="alert alert-success">
+    🎉 Perfect score! This test has been marked as completed.
+</div>
+{% endif %}
+
   <a href="{% url 'home' %}">Back to Home</a>
 {% endblock %}
 

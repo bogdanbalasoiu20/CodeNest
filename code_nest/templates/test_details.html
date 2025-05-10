@@ -9,33 +9,144 @@
 {% endblock %}
 
 {% block content %}
-<div class="test-details">
-    <div class="test-header">
-        <h1>{{ test.title }}</h1>
-        <div class="test-meta">
-            <span>{{ test.difficulty }}</span>
-            <span>{{ test.number_of_questions }} Questions</span>
+<div class="test-details-container">
+    <!-- Panoul stâng -->
+    <aside class="side-panel left-panel">
+        <h3>Related Tests</h3>
+        <ul class="related-tests">
+            <li><a href="#">C++ Fundamentals</a></li>
+            <li><a href="#">OOP Principles</a></li>
+            <li><a href="#">Data Structures</a></li>
+            <li><a href="#">Algorithms</a></li>
+        </ul>
+
+        <div class="progress-widget">
+            <h3>Your Learning Progress</h3>
+            <div class="progress-bar">
+                <div class="progress" style="width: {{ progress }}%;"></div>
+            </div>
+            <span>{{ completed_count }} out of {{ total_tests }} tests completed</span>
         </div>
-    </div>
+    </aside>
 
-    <div class="test-description">
-        <h2>Description:</h2>
-        <p>{{ test.description }}</p>
-    </div>
+    <!-- Conținutul principal -->
+    <main class="main-content">
+        <div class="difficulty-banner {{ test.difficulty|lower }}">{{ test.difficulty }}</div>
+        
+        <div class="test-header">
+            <h1>{{ test.title }}</h1>
+            <div class="test-meta">
+                <span>{{ test.number_of_questions }} Questions</span>
+                <span>Estimated time: {{test.time_in_minutes}} min</span>
+            </div>
+        </div>
 
-    <div class="test-categories">
-        <h2>Categories:</h2>
-        <ul>
+        <div class="test-description">
+            <h2>Description</h2>
+            <p>{{ test.description }}</p>
+        </div>
+
+        <div class="categories-container">
             {% for category in test.categories.all %}
-                <li>{{ category.title }}</li>
+            <div class="category-chip">
+                <span class="category-icon">📚</span>
+                {{ category.title }}
+            </div>
             {% empty %}
-                <li>No categories specified</li>
+            <div class="category-chip">
+                <span class="category-icon">🔖</span>
+                General
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="test-actions">
+            <a href="#" class="start-test-button">Start Test</a>
+            <button class="preview-button" id="previewBtn">Preview Questions</button>
+        </div>
+    </main>
+
+    <!-- Panoul drept -->
+    <aside class="side-panel right-panel">
+        <h3>Test Instructions</h3>
+        <ol class="instructions-list">
+            <li>{{test.time_in_minutes}} minutes time limit</li>
+            <li>No external resources allowed</li>
+            <li>Answers are auto-saved</li>
+            <li>Can't pause once started</li>
+        </ol>
+
+        <div class="quick-stats">
+            <h3>Quick Stats</h3>
+            <div class="stat-item">
+                <div class="stat-value">4.8</div>
+                <div class="stat-label">Average Rating</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">87%</div>
+                <div class="stat-label">Completion Rate</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">{{test.attempts}}</div>
+                <div class="stat-label">Total Attempts</div>
+            </div>
+        </div>
+    </aside>
+</div>
+
+<!-- Modal pentru preview -->
+<div id="previewModal" class="preview-modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h3 class="modal-title">Sample Questions Preview</h3>
+        
+        <ul class="question-list">
+            {% for question in sample_questions %}
+            <li class="question-item">
+                <span class="question-number">{{ forloop.counter }}</span>
+                <div class="question-content">
+                    <p class="question-text">{{ question.text }}</p>
+                    {% if question.code_snippet %}
+                    <pre class="code-snippet"><code>{{ question.code_snippet }}</code></pre>
+                    {% endif %}
+                </div>
+            </li>
             {% endfor %}
         </ul>
     </div>
-
-    <div class="start-test">
-        {% comment %} <a href="{% url 'start_test' test.id %}" class="start-test-button">Start Test</a> {% endcomment %}
-    </div>
 </div>
+
+<script>
+    const modal = document.getElementById("previewModal");
+    const btn = document.getElementById("previewBtn");
+    const span = document.getElementsByClassName("close-modal")[0];
+
+    // Deschide modalul
+    btn.addEventListener('click', function() {
+        modal.style.display = "block";
+        document.body.style.overflow = "hidden";
+    });
+
+    // Închide modalul
+    span.addEventListener('click', function() {
+        modal.style.display = "none";
+        document.body.style.overflow = "auto";
+    });
+
+    // Închide când se click în afara
+    window.addEventListener('click', function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+            document.body.style.overflow = "auto";
+        }
+    });
+
+    // Închide cu ESC
+    document.addEventListener('keydown', function(event) {
+        if (event.key === "Escape" && modal.style.display == "block") {
+            modal.style.display = "none";
+            document.body.style.overflow = "auto";
+        }
+    });
+</script>
 {% endblock %}

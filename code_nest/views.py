@@ -148,7 +148,7 @@ def profile(request):
     else:
         form=ProfileForm(instance=user)
         
-    test_results = user.test_results.select_related("test").order_by("-date_taken")
+    test_results = user.testresults.select_related("test").order_by("-date_taken")
 
     return render(request, 'profile.html', {
         'form': form,
@@ -187,7 +187,7 @@ def add_question(request):
 
 def take_test(request, test_id):
     if not request.user.is_authenticated:
-        messages.info(request,"Before solving a test, you must be logged in")
+        messages.info(request, "Before solving a test, you must be logged in")
         return redirect('login')
     
     test = get_object_or_404(Test, id=test_id)
@@ -195,37 +195,50 @@ def take_test(request, test_id):
 
     if request.method == 'POST':
         score = 0
-        total = questions.count()
-
+        total_points = sum(question.points for question in questions)  # Totalul maxim de puncte
+        
         for question in questions:
             selected = request.POST.get(f"question_{question.id}")
             if selected:
                 correct_answer = question.answers.filter(is_correct=True, option_label=selected).exists()
                 if correct_answer:
                     score += question.points
+        
+        # Calculăm procentajul
+        percentage = (score / total_points) * 100 if total_points > 0 else 0
+        
         if request.user.is_authenticated:
+            # Marchează testul ca completat dacă scorul este 100%
+            completed = percentage == 100
+            
             TestResult.objects.update_or_create(
                 user=request.user,
                 test=test,
-                defaults={'score': score}
+                defaults={
+                    'score': score,
+                    'completed': completed,
+                    'percentage': percentage  # Adaugă și procentajul dacă modelul tău are acest câmp
+                }
             )
             
-            #calcularea xp-ului in functie de dificultatea testului
-            xp_points=request.user.XP
-            if(test.difficulty.lower()=="beginner"):
-                xp_points+=score*10
-            elif(test.difficulty.lower()=="intermediate"):
-                xp_points+=score*10*1.5
-            else:
-                xp_points+=score*10*3
+            # Calcularea XP-ului
+            xp_points = request.user.XP
+            if test.difficulty.lower() == "beginner":
+                xp_points += score * 10
+            elif test.difficulty.lower() == "intermediate":
+                xp_points += score * 10 * 1.5
+            else:  # advanced
+                xp_points += score * 10 * 3
                 
-            request.user.XP=xp_points
+            request.user.XP = xp_points
             request.user.save()
             
         return render(request, "test_result.html", {
             "test": test,
             "score": score,
-            "total": total
+            "total": total_points,
+            "percentage": percentage,
+            "perfect_score": percentage == 100
         })
 
     return render(request, "take_test.html", {
@@ -322,9 +335,25 @@ def course_payment(request, slug):
                                             #----------------------#
                                             #TEST DETAILS
                                             #----------------------#
-                                            
-                                            
-def testDetails(request,test_id):
+   
+def testDetails(request, test_id):
     test = get_object_or_404(Test, id=test_id)
+    sample_questions = test.questions.all().order_by('?')[:3]
     
-    return render(request,'test_details.html',{'test':test})                                            
+    completed_count = request.user.testresults.filter(completed=True).count()
+    total_tests = Test.objects.count()
+    progress = round((completed_count / total_tests) * 100) if total_tests > 0 else 0
+    
+    is_completed = False
+    if request.user.is_authenticated:
+        result = TestResult.objects.filter(user=request.user, test=test).first()
+        is_completed = result.completed if result else False
+    
+    return render(request, 'test_details.html', {
+        'test': test,
+        'is_completed': is_completed,
+        'progress': progress,
+        'completed_count': completed_count,
+        'total_tests': total_tests,
+        'sample_questions': sample_questions
+    })

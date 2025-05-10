@@ -29,6 +29,10 @@ class CustomUser(AbstractUser):
         related_name="customuser_permissions_set",
         blank=True
     )
+    
+    @property
+    def testattempts(self):
+        return self.testattempt_set.all()
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.username})"
@@ -119,6 +123,12 @@ class Test(models.Model):
     )
     number_of_questions = models.IntegerField()
     image = models.ImageField(upload_to='tests/', default='tests/default.png')
+    time = models.DurationField(default="00:30:00")
+
+    @property
+    def time_in_minutes(self):
+        return int(self.time.total_seconds() // 60)
+    
 
     def __str__(self):
         return self.title
@@ -162,9 +172,11 @@ class Answer(models.Model):
                                         # --------------------------
 
 class TestResult(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="test_results")
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="testresults")
     test = models.ForeignKey(Test, on_delete=models.CASCADE)
     score = models.FloatField()
+    completed = models.BooleanField(default=False)
+    percentage = models.FloatField(default=0)
     date_taken = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -172,3 +184,8 @@ class TestResult(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.test.title}: {self.score} puncte"
+    
+                                        # --------------------------
+                                        # TESTATTEMPT MODEL
+                                        # --------------------------  
+    
