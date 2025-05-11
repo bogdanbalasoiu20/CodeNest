@@ -130,6 +130,28 @@ class Test(models.Model):
         return int(self.time.total_seconds() // 60)
     
 
+    @property
+    def average_score(self):
+        """Media scorurilor obținute la test"""
+        from django.db.models import Avg
+        avg = self.testresult_set.filter(completed=True).aggregate(Avg('score'))['score__avg']
+        return avg if avg is not None else None
+
+    @property
+    def completion_rate(self):
+        """Procentul de utilizatori care au completat testul"""
+        total_users = CustomUser.objects.count()
+        if total_users == 0:
+            return None
+        completed_users = self.testresult_set.filter(completed=True).count()
+        return (completed_users / total_users) * 100
+
+    @property
+    def attempts_count(self):
+        """Numărul total de încercări"""
+        return self.testresult_set.count()
+    
+
     def __str__(self):
         return self.title
 
@@ -185,7 +207,5 @@ class TestResult(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.test.title}: {self.score} puncte"
     
-                                        # --------------------------
-                                        # TESTATTEMPT MODEL
-                                        # --------------------------  
+                                       
     

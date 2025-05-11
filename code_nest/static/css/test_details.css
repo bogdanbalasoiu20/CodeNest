@@ -1,11 +1,13 @@
 /* Test Details Page Styling */
 .test-details-container {
     display: grid;
-    grid-template-columns: 250px 1fr 250px;
-    gap: 30px;
-    max-width: 1400px;
-    margin: 2rem auto;
-    padding: 0 20px;
+    grid-template-columns: 350px 1fr 350px;
+    gap: 50px;
+    max-width: 1800px;
+    margin: 5vh auto;
+    padding: 0 40px;
+    align-items: start; /* Asigură că toate panourile încep de la același nivel */
+    min-height: 70vh; /* Înălțime minimă pentru a forța centrarea */
 }
 
 .main-content {
@@ -14,6 +16,9 @@
     padding: 2.5rem;
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
     animation: fadeIn 0.5s ease-out;
+    margin: 0 20px;
+    min-height: 400px;
+    margin-top:80px;
 }
 
 @keyframes fadeIn {
@@ -22,16 +27,55 @@
 }
 
 .side-panel {
+    min-height: 400px; /* Adăugăm înălțime minimă */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Distribuie conținutul uniform */
     background-color: #2d3748;
     border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 2.5rem;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
     height: fit-content;
+    margin: 0 20px;
+    margin-top: 80px;
+    animation: fadeIn 0.5s ease-out;
+    border: 1px solid #3c4658; 
+    transition: transform 0.3s ease, box-shadow 0.3s ease; 
+}
+
+.side-panel:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.side-panel h3 {
+    color: #81e6d9;
+    font-size: 1.5rem;
+    margin-bottom: 1.2rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 2px solid #4299e1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .left-panel {
     position: sticky;
     top: 120px;
+    justify-self: end;
+}
+
+.right-panel {
+    justify-self: start; /* Aliniere la stânga a panoului drept */
+}
+
+
+.left-panel h3::before {
+    content: "🧪";
+}
+
+.right-panel h3::before {
+    content: "📋";
 }
 
 /* Stiluri pentru panoul stâng */
@@ -45,6 +89,8 @@
     margin-bottom: 12px;
     padding-bottom: 12px;
     border-bottom: 1px solid #4a5568;
+    padding: 15px 20px;
+    font-size: 1.05rem;
 }
 
 .related-tests a {
@@ -67,6 +113,36 @@
 
 .instructions-list li {
     margin-bottom: 10px;
+    padding: 12px 18px;
+    font-size: 1.05rem;
+}
+
+.related-tests, .instructions-list {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.related-tests li, .instructions-list li {
+    transition: all 0.2s ease;
+    padding: 12px 15px;
+    border-radius: 6px;
+}
+
+.related-tests li:hover, .instructions-list li:hover {
+    background-color: #3c4658;
+    transform: translateX(3px);
+}
+
+.related-tests::-webkit-scrollbar, 
+.instructions-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.related-tests::-webkit-scrollbar-thumb,
+.instructions-list::-webkit-scrollbar-thumb {
+    background-color: #4a5568;
+    border-radius: 3px;
 }
 
 .quick-stats {
@@ -74,13 +150,29 @@
 }
 
 .stat-item {
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    background-color: #3c4658;
+    padding: 18px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.stat-item:hover {
+    background-color: #4a5568;
+    transform: translateY(-2px);
 }
 
 .stat-value {
     font-size: 1.4rem;
     font-weight: bold;
     color: #81e6d9;
+}
+
+.stat-value:empty:before,
+.stat-value[data-empty="true"] {
+    content: "-";
+    color: #a0aec0;
+    font-style: italic;
 }
 
 .stat-label {
@@ -353,8 +445,12 @@
 
 /* Progress bar styles */
 .progress-widget {
-    margin-top: 2rem;
+    margin-top: auto;
     color: #cbd5e0;
+    background-color: #3c4658;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .progress-bar {

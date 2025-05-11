@@ -47,6 +47,9 @@ urlpatterns = [
     
     #test detail
     path('tests/test_details/<int:test_id>/',views.testDetails,name='test_details'),
+    
+    #test stats
+    path('test/<int:test_id>/stats/', views.get_test_stats, name='test-stats')
 
 
 ]

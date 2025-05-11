@@ -9,6 +9,8 @@ from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.conf import settings  
 import uuid
+from django.http import JsonResponse
+from django.views.decorators.http import require_GET
 
 
 def home(request):
@@ -357,3 +359,19 @@ def testDetails(request, test_id):
         'total_tests': total_tests,
         'sample_questions': sample_questions
     })
+    
+    
+    
+    
+@require_GET
+def get_test_stats(request, test_id):
+    test = get_object_or_404(Test, id=test_id)
+    
+    stats = {
+        'average_score': test.average_score,
+        'completion_rate': test.completion_rate,
+        'attempts_count': test.attempts_count,
+        'has_data': test.testresult_set.exists()
+    }
+    
+    return JsonResponse(stats)

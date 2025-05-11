@@ -79,15 +79,15 @@
         <div class="quick-stats">
             <h3>Quick Stats</h3>
             <div class="stat-item">
-                <div class="stat-value">4.8</div>
+                <div class="stat-value" id="average-rating">-</div>
                 <div class="stat-label">Average Rating</div>
             </div>
             <div class="stat-item">
-                <div class="stat-value">87%</div>
+                <div class="stat-value" id="completion-rate">-</div>
                 <div class="stat-label">Completion Rate</div>
             </div>
             <div class="stat-item">
-                <div class="stat-value">{{test.attempts}}</div>
+                <div class="stat-value" id="attempts-count">0</div>
                 <div class="stat-label">Total Attempts</div>
             </div>
         </div>
@@ -148,5 +148,38 @@
             document.body.style.overflow = "auto";
         }
     });
+
+
+    function updateStats() {
+    fetch(`/test/{{ test.id }}/stats/`)
+        .then(response => response.json())
+        .then(data => {
+            const avgScore = document.getElementById('average-score');
+            const completionRate = document.getElementById('completion-rate');
+            const attemptsCount = document.getElementById('attempts-count');
+            
+            // Actualizează scorul mediu (afisat ca procent sau punctaj)
+            if (data.has_data && data.average_score !== null) {
+                avgScore.textContent = `${data.average_score.toFixed(1)}%`; 
+                // Sau `${data.average_score.toFixed(1)}` dacă nu e procent
+            } else {
+                avgScore.textContent = '-';
+            }
+            
+            // Actualizează rata de completare
+            completionRate.textContent = data.completion_rate !== null ? 
+                `${Math.round(data.completion_rate)}%` : '-';
+            
+            // Actualizează numărul de încercări
+            attemptsCount.textContent = data.attempts_count || '0';
+        });
+}
+
+// Inițializare la încărcare
+document.addEventListener('DOMContentLoaded', updateStats);
+
+// Actualizare periodică (la fiecare 30 de secunde)
+setInterval(updateStats, 30000);
+
 </script>
 {% endblock %}
