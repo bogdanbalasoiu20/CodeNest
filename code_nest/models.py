@@ -124,6 +124,7 @@ class Test(models.Model):
     number_of_questions = models.IntegerField()
     image = models.ImageField(upload_to='tests/', default='tests/default.png')
     time = models.DurationField(default="00:30:00")
+    updated_at = models.DateTimeField(auto_now=True)
 
     @property
     def time_in_minutes(self):
@@ -132,23 +133,26 @@ class Test(models.Model):
 
     @property
     def average_score(self):
-        """Media scorurilor obținute la test"""
-        from django.db.models import Avg
-        avg = self.testresult_set.filter(completed=True).aggregate(Avg('score'))['score__avg']
-        return avg if avg is not None else None
+        # Remove the completed=True filter to include all attempts
+        avg = self.testresult_set.aggregate(
+            avg_score=models.Avg('percentage')  # Use percentage instead of score
+        )['avg_score']
+        return round(avg, 1) if avg is not None else 0
 
     @property
     def completion_rate(self):
-        """Procentul de utilizatori care au completat testul"""
-        total_users = CustomUser.objects.count()
-        if total_users == 0:
-            return None
-        completed_users = self.testresult_set.filter(completed=True).count()
-        return (completed_users / total_users) * 100
+        total_attempts = self.testresult_set.count()
+        if total_attempts == 0:
+            return 0  # Avoid division by zero
+        
+        perfect_scores = self.testresult_set.filter(completed=True).count()
+        completion_rate = (perfect_scores / total_attempts) * 100
+        
+        # Round to 1 decimal place for better precision
+        return round(completion_rate, 1)
 
     @property
     def attempts_count(self):
-        """Numărul total de încercări"""
         return self.testresult_set.count()
     
 
@@ -201,6 +205,12 @@ class TestResult(models.Model):
     percentage = models.FloatField(default=0)
     date_taken = models.DateTimeField(auto_now_add=True)
 
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Forțează actualizarea câmpului updated_at
+        Test.objects.filter(id=self.test_id).update(updated_at=timezone.now())
+    
     class Meta:
         unique_together = ("user", "test")  # Opțional: un user poate da testul o singură dată
 

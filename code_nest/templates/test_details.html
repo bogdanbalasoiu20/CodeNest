@@ -77,17 +77,19 @@
         </ol>
 
         <div class="quick-stats">
-            <h3>Quick Stats</h3>
+            <h3>Test Statistics</h3>
             <div class="stat-item">
-                <div class="stat-value" id="average-rating">-</div>
-                <div class="stat-label">Average Rating</div>
+                <div class="stat-value">{{ stats.average_score|default:"-" }}</div>
+                <div class="stat-label">Average Score</div>
             </div>
             <div class="stat-item">
-                <div class="stat-value" id="completion-rate">-</div>
+                <div class="stat-value">
+                    {% if stats.completion_rate %}{{ stats.completion_rate }}%{% else %}-{% endif %}
+                </div>
                 <div class="stat-label">Completion Rate</div>
             </div>
             <div class="stat-item">
-                <div class="stat-value" id="attempts-count">0</div>
+                <div class="stat-value">{{ stats.attempts_count }}</div>
                 <div class="stat-label">Total Attempts</div>
             </div>
         </div>
@@ -150,36 +152,38 @@
     });
 
 
-    function updateStats() {
-    fetch(`/test/{{ test.id }}/stats/`)
-        .then(response => response.json())
-        .then(data => {
-            const avgScore = document.getElementById('average-score');
-            const completionRate = document.getElementById('completion-rate');
-            const attemptsCount = document.getElementById('attempts-count');
-            
-            // Actualizează scorul mediu (afisat ca procent sau punctaj)
-            if (data.has_data && data.average_score !== null) {
-                avgScore.textContent = `${data.average_score.toFixed(1)}%`; 
-                // Sau `${data.average_score.toFixed(1)}` dacă nu e procent
-            } else {
-                avgScore.textContent = '-';
-            }
-            
-            // Actualizează rata de completare
-            completionRate.textContent = data.completion_rate !== null ? 
-                `${Math.round(data.completion_rate)}%` : '-';
-            
-            // Actualizează numărul de încercări
-            attemptsCount.textContent = data.attempts_count || '0';
-        });
+    // Actualizează statisticile în timp real (pentru alți utilizatori)
+function startStatsPolling(testId) {
+    let lastUpdate = {{ stats.last_updated|default:"0" }};
+    
+    function checkStats() {
+        fetch(`/code_nest/test/${testId}/stats/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.last_updated > lastUpdate) {
+                    updateStats(data);
+                    lastUpdate = data.last_updated;
+                }
+            });
+    }
+    
+    // Verifică la fiecare 15 secunde
+    setInterval(checkStats, 15000);
 }
 
-// Inițializare la încărcare
-document.addEventListener('DOMContentLoaded', updateStats);
+function updateStats(data) {
+    document.querySelector('.stat-value:nth-child(1)').textContent = 
+        data.average_score !== undefined ? data.average_score : '-';
+    document.querySelector('.stat-value:nth-child(2)').textContent = 
+        data.completion_rate !== undefined ? `${data.completion_rate}%` : '-';
+    document.querySelector('.stat-value:nth-child(3)').textContent = 
+        data.attempts_count;
+}
 
-// Actualizare periodică (la fiecare 30 de secunde)
-setInterval(updateStats, 30000);
+// Pornește polling după încărcare
+document.addEventListener('DOMContentLoaded', () => {
+    startStatsPolling({{ test.id }});
+});
 
 </script>
 {% endblock %}

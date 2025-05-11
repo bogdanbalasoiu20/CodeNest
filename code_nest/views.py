@@ -11,7 +11,10 @@ from django.conf import settings
 import uuid
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
-
+import time
+from django.core.cache import cache
+from django.utils import timezone
+from django.db.models import Prefetch, Q
 
 def home(request):
     return render(request,'home.html') 
@@ -192,62 +195,88 @@ def take_test(request, test_id):
         messages.info(request, "Before solving a test, you must be logged in")
         return redirect('login')
     
-    test = get_object_or_404(Test, id=test_id)
-    questions = test.questions.all().prefetch_related("answers")
+    # Interogare optimizată pentru modelul tău
+    test = get_object_or_404(
+        Test.objects.prefetch_related(
+            'categories',
+            Prefetch('questions', queryset=Question.objects.prefetch_related('answers'))
+        ),
+        id=test_id
+    )
+
+    questions = test.questions.all()
 
     if request.method == 'POST':
         score = 0
-        total_points = sum(question.points for question in questions)  # Totalul maxim de puncte
+        total_points = sum(question.points for question in questions)
         
         for question in questions:
             selected = request.POST.get(f"question_{question.id}")
             if selected:
-                correct_answer = question.answers.filter(is_correct=True, option_label=selected).exists()
+                correct_answer = question.answers.filter(
+                    is_correct=True, 
+                    option_label=selected
+                ).exists()
                 if correct_answer:
                     score += question.points
         
-        # Calculăm procentajul
-        percentage = (score / total_points) * 100 if total_points > 0 else 0
-        
+        percentage = round((score / total_points) * 100, 2) if total_points > 0 else 0
+        completed = percentage == 100
+
         if request.user.is_authenticated:
-            # Marchează testul ca completat dacă scorul este 100%
-            completed = percentage == 100
-            
+            # Salvare rezultat
             TestResult.objects.update_or_create(
                 user=request.user,
                 test=test,
                 defaults={
                     'score': score,
                     'completed': completed,
-                    'percentage': percentage  # Adaugă și procentajul dacă modelul tău are acest câmp
+                    'percentage': percentage,
+                    'date_taken': timezone.now()
                 }
             )
+
+            # Actualizare XP
+            xp_multiplier = {
+                'beginner': 10,
+                'intermediate': 15,
+                'advanced': 30
+            }.get(test.difficulty.lower(), 10)
             
-            # Calcularea XP-ului
-            xp_points = request.user.XP
-            if test.difficulty.lower() == "beginner":
-                xp_points += score * 10
-            elif test.difficulty.lower() == "intermediate":
-                xp_points += score * 10 * 1.5
-            else:  # advanced
-                xp_points += score * 10 * 3
-                
-            request.user.XP = xp_points
+            request.user.XP += score * xp_multiplier
             request.user.save()
-            
+
+            # Invalidate cache
+            cache.delete(f'test_stats_{test_id}')
+
+        # Pregătire statistici
+        stats = {
+            'average_score': test.average_score,
+            'completion_rate': test.completion_rate,
+            'attempts_count': test.attempts_count,
+            'last_updated': test.updated_at.timestamp(),
+            'user_score': percentage,
+            'user_rank': TestResult.objects.filter(
+                test=test, 
+                percentage__gt=percentage
+            ).count() + 1
+        }
+
         return render(request, "test_result.html", {
             "test": test,
             "score": score,
             "total": total_points,
             "percentage": percentage,
-            "perfect_score": percentage == 100
+            "perfect_score": completed,
+            "stats": stats
         })
 
     return render(request, "take_test.html", {
         "test": test,
         "questions": questions,
+        "time_limit": test.time_in_minutes,
+        "categories": test.categories.all()  # Adăugat pentru afișare în template
     })
-    
     
     
 def test_404(request):
@@ -363,15 +392,21 @@ def testDetails(request, test_id):
     
     
     
-@require_GET
 def get_test_stats(request, test_id):
-    test = get_object_or_404(Test, id=test_id)
+    """
+    Endpoint API pentru statistici cu cache
+    """
+    cached_stats = cache.get(f'test_stats_{test_id}')
+    if cached_stats:
+        return JsonResponse(cached_stats)
     
+    test = get_object_or_404(Test, id=test_id)
     stats = {
         'average_score': test.average_score,
         'completion_rate': test.completion_rate,
         'attempts_count': test.attempts_count,
-        'has_data': test.testresult_set.exists()
+        'last_updated': test.updated_at.timestamp() if hasattr(test, 'updated_at') else time.time()
     }
     
+    cache.set(f'test_stats_{test_id}', stats, timeout=30)
     return JsonResponse(stats)
