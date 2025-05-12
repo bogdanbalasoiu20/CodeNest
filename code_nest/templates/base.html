@@ -1,11 +1,13 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}Code Nest{% endblock %}</title>
     {% block extra_head %}{% endblock %}
 </head>
+
 <body>
     <header>
         <a href="{% url 'home' %}" class="logo">
@@ -18,7 +20,7 @@
                 <li><a href="{% url 'testsPage' %}">Tests</a></li>
                 <li><a href="{% url 'course_list' %}">Courses</a></li>
                 <li><a href="#">About</a></li>
-                
+
             </ul>
         </nav>
         {%if not user.is_authenticated %}
@@ -39,15 +41,61 @@
     </main>
 
     {% if messages %}
-        <ul class="messages">
-            {% for message in messages %}
-                <li class="{{ message.tags }}">{{ message }}</li>
-            {% endfor %}
-        </ul>
+    <ul class="messages">
+        {% for message in messages %}
+        <li class="{{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+    </ul>
     {% endif %}
 
     {% comment %} <footer>
         <p>&copy; 2025 Code Nest</p>
     </footer> {% endcomment %}
+
+
+    <div id="particles-js"></div>
+
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        particlesJS("particles-js", {
+            "particles": {
+                "number": {
+                    "value": 80,
+                    "density": { "enable": true, "value_area": 1000 }
+                },
+                "color": { "value": "#ffffff" },
+                "shape": {
+                    "type": "star",
+                    "stroke": { "width": 0, "color": "#000000" }
+                },
+                "opacity": {
+                    "value": 0.6,
+                    "random": true
+                },
+                "size": {
+                    "value": 2,
+                    "random": true
+                },
+                "line_linked": {
+                    "enable": false
+                },
+                "move": {
+                    "enable": true,
+                    "speed": 0.6,
+                    "direction": "none",
+                    "out_mode": "out"
+                }
+            },
+            "interactivity": {
+                "events": {
+                    "onhover": { "enable": false },
+                    "onclick": { "enable": false }
+                }
+            },
+            "retina_detect": true
+        });
+    </script>
+
 </body>
+
 </html>

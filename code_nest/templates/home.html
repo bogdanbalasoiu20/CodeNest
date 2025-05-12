@@ -5,8 +5,133 @@
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/base.css' %}">
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
 {% endblock %}
 
 {% block content %}
-    <p>sdcxdaceqcqqe</p>
+<div class="hero-section">
+    <h1>CodeNest – Learn to Code the Fun Way</h1>
+    <p>
+        CodeNest started from a dream — a dream to help young people learn how to code in a way that's fun, modern, and
+        meaningful.
+    </p>
+    <p>
+        In a world where traditional education can often feel boring, repetitive, or disconnected from real-life skills,
+        we knew there had to be a better way. We created CodeNest as a playful yet serious alternative — a space where
+        curiosity is rewarded, creativity is nurtured, and progress is always visible.
+    </p>
+    <p>
+        Our approach isn’t about memorizing syntax — it’s about solving problems, building real projects, and developing
+        logical thinking. Whether it’s creating a mini game, building your first webpage, or automating something cool,
+        you’ll be learning by doing from day one.
+    </p>
+    <p>
+        Whether you're taking your first steps or you're already passionate about technology, CodeNest is your nest — a
+        safe, supportive place to grow into the developer of tomorrow.
+    </p>
+</div>
+
+
+<div class="features-section">
+    <h2>Why Choose CodeNest? 💡</h2>
+    <p class="section-subtitle">
+        We believe learning should be a joyful experience. At CodeNest, we combine coding with creativity and community
+        to help you become a confident problem solver.
+    </p>
+    <div class="features">
+        <div class="feature-card">
+            <h3>🎯 Goal-Oriented Learning</h3>
+            <p>Every lesson is built around real-world challenges to give you purpose and motivation.</p>
+        </div>
+        <div class="feature-card">
+            <h3>👾 Interactive & Fun</h3>
+            <p>No boring theory here — play, build, explore, and learn by actually doing cool stuff.</p>
+        </div>
+        <div class="feature-card">
+            <h3>🌍 Learn at Your Own Pace</h3>
+            <p>Whether you’re fast or prefer to take your time, CodeNest adapts to your learning rhythm.</p>
+        </div>
+        <div class="feature-card">
+            <h3>🧑‍💻 Built for Beginners</h3>
+            <p>You don’t need to know anything to start. Step-by-step guides help you from day one.</p>
+        </div>
+        <div class="feature-card">
+            <h3>🎨 Creativity First</h3>
+            <p>We don’t just teach coding — we inspire kids to build their own games, websites, and apps.</p>
+        </div>
+        <div class="feature-card">
+            <h3>🤝 Community Support</h3>
+            <p>Join a friendly community of learners and mentors who are here to help and cheer you on.</p>
+        </div>
+    </div>
+</div>
+
+<div class="testimonials-section">
+    <h2>What People Are Saying 🗣️</h2>
+    <p class="section-subtitle">
+        Learners, parents, and teachers love CodeNest. Here's what some of them are saying about their journey with us.
+    </p>
+    <div class="testimonials">
+        <div class="testimonial-card">
+            <p>"CodeNest made learning programming feel like a game! I looked forward to every session."</p>
+            <span>— Alex, 13 y/o student</span>
+        </div>
+        <div class="testimonial-card">
+            <p>"My daughter went from fearing code to building her own quiz app. Thank you, CodeNest!"</p>
+            <span>— Maria, parent</span>
+        </div>
+        <div class="testimonial-card">
+            <p>"As a teacher, I see CodeNest as a powerful tool for engaging young minds. Highly recommended."</p>
+            <span>— Mr. Thompson, CS teacher</span>
+        </div>
+        <div class="testimonial-card">
+            <p>"The way CodeNest combines fun with real knowledge is just amazing. I finally enjoy learning!"</p>
+            <span>— Emma, 15 y/o student</span>
+        </div>
+        <div class="testimonial-card">
+            <p>"I’ve tried other platforms, but this is the only one that kept my kids excited to keep going."</p>
+            <span>— Laura, parent</span>
+        </div>
+        <div class="testimonial-card">
+            <p>"Seeing students build things with confidence is what education should be. CodeNest gets it right."</p>
+            <span>— Mr. O’Connor, educator</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const cards = document.querySelectorAll('.feature-card, .testimonial-card');
+
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-6px)';
+                card.style.boxShadow = '0 8px 20px rgba(0, 0, 0, 0.4)';
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = '';
+                card.style.boxShadow = '';
+            });
+        });
+    });
+</script>
+
+<div class="f1-track">
+    <img src="{% static 'images/f1_car.png' %}" alt="F1 Car" class="f1-car" id="f1car">
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const car = document.getElementById('f1car');
+
+        car.addEventListener('click', () => {
+            car.classList.remove('animate');
+            void car.offsetWidth; // force reflow
+            car.classList.add('animate');
+        });
+    });
+</script>
+
+
 {% endblock %}
