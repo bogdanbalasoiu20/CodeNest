@@ -76,22 +76,21 @@
             <li>Can't pause once started</li>
         </ol>
 
-        <div class="quick-stats">
-            <h3>Test Statistics</h3>
-            <div class="stat-item">
-                <div class="stat-value">{{ stats.average_score|default:"-" }}</div>
-                <div class="stat-label">Average Score</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value">
-                    {% if stats.completion_rate %}{{ stats.completion_rate }}%{% else %}-{% endif %}
+                <div class="quick-stats">
+                <h3>Test Statistics</h3>
+                <div class="stat-item">
+                    <div class="stat-value avg-score">{{ stats.average_score }}</div>
+                    <div class="stat-label">Average Score</div>
                 </div>
-                <div class="stat-label">Completion Rate</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value">{{ stats.attempts_count }}</div>
-                <div class="stat-label">Total Attempts</div>
-            </div>
+                <div class="stat-item">
+                    <div class="stat-value completion-rate">{{ stats.completion_rate }}%</div>
+                    <div class="stat-label">Completion Rate</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value attempts-count">{{ stats.attempts_count }}</div>
+                    <div class="stat-label">Total Attempts</div>
+                </div>
+
         </div>
     </aside>
 </div>
@@ -172,13 +171,22 @@ function startStatsPolling(testId) {
 }
 
 function updateStats(data) {
-    document.querySelector('.stat-value:nth-child(1)').textContent = 
-        data.average_score !== undefined ? data.average_score : '-';
-    document.querySelector('.stat-value:nth-child(2)').textContent = 
-        data.completion_rate !== undefined ? `${data.completion_rate}%` : '-';
-    document.querySelector('.stat-value:nth-child(3)').textContent = 
-        data.attempts_count;
+    document.querySelector('.avg-score').textContent =
+        data.average_score !== undefined && data.average_score !== null
+            ? data.average_score
+            : '-';
+
+    document.querySelector('.completion-rate').textContent =
+        data.completion_rate !== undefined && data.completion_rate !== null
+            ? `${data.completion_rate}%`
+            : '-';
+
+    document.querySelector('.attempts-count').textContent =
+        data.attempts_count !== undefined
+            ? data.attempts_count
+            : '0';
 }
+
 
 // Pornește polling după încărcare
 document.addEventListener('DOMContentLoaded', () => {

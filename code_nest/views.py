@@ -15,6 +15,8 @@ import time
 from django.core.cache import cache
 from django.utils import timezone
 from django.db.models import Prefetch, Q
+from . import models
+
 
 def home(request):
     return render(request,'home.html') 
@@ -194,8 +196,7 @@ def take_test(request, test_id):
     if not request.user.is_authenticated:
         messages.info(request, "Before solving a test, you must be logged in")
         return redirect('login')
-    
-    # Interogare optimizată pentru modelul tău
+
     test = get_object_or_404(
         Test.objects.prefetch_related(
             'categories',
@@ -208,23 +209,20 @@ def take_test(request, test_id):
 
     if request.method == 'POST':
         score = 0
-        total_points = sum(question.points for question in questions)
-        
+        total_points = sum(q.points for q in questions)
+
         for question in questions:
             selected = request.POST.get(f"question_{question.id}")
             if selected:
-                correct_answer = question.answers.filter(
-                    is_correct=True, 
-                    option_label=selected
-                ).exists()
-                if correct_answer:
+                is_correct = question.answers.filter(is_correct=True, option_label=selected).exists()
+                if is_correct:
                     score += question.points
-        
+
         percentage = round((score / total_points) * 100, 2) if total_points > 0 else 0
         completed = percentage == 100
 
+        # Salvează rezultatul doar dacă ești autentificat
         if request.user.is_authenticated:
-            # Salvare rezultat
             TestResult.objects.update_or_create(
                 user=request.user,
                 test=test,
@@ -236,30 +234,25 @@ def take_test(request, test_id):
                 }
             )
 
-            # Actualizare XP
+            # XP update
             xp_multiplier = {
                 'beginner': 10,
                 'intermediate': 15,
                 'advanced': 30
             }.get(test.difficulty.lower(), 10)
-            
             request.user.XP += score * xp_multiplier
             request.user.save()
 
-            # Invalidate cache
             cache.delete(f'test_stats_{test_id}')
 
-        # Pregătire statistici
+        # Statistici după submit
         stats = {
             'average_score': test.average_score,
             'completion_rate': test.completion_rate,
             'attempts_count': test.attempts_count,
             'last_updated': test.updated_at.timestamp(),
             'user_score': percentage,
-            'user_rank': TestResult.objects.filter(
-                test=test, 
-                percentage__gt=percentage
-            ).count() + 1
+            'user_rank': TestResult.objects.filter(test=test, percentage__gt=percentage).count() + 1
         }
 
         return render(request, "test_result.html", {
@@ -271,11 +264,20 @@ def take_test(request, test_id):
             "stats": stats
         })
 
+    # Statistici afișate în mod implicit la GET
+    stats = {
+        'average_score': test.average_score,
+        'completion_rate': test.completion_rate,
+        'attempts_count': test.attempts_count,
+        'last_updated': test.updated_at.timestamp()
+    }
+
     return render(request, "take_test.html", {
         "test": test,
         "questions": questions,
         "time_limit": test.time_in_minutes,
-        "categories": test.categories.all()  # Adăugat pentru afișare în template
+        "categories": test.categories.all(),
+        "stats": stats
     })
     
     
