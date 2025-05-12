@@ -1,91 +1,314 @@
+/* static/css/courses.css */
+
+
+
+/* Container styling - similar cu testele */
+.courses-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    position: relative;
+    padding-top: 1.5rem;
+}
+
+.page-header {
+    margin: 2rem 0 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.page-title {
+    font-size: 2.5rem;
+    color: #f4f4f4;
+    font-weight: 600;
+    margin: 0;
+    position: relative;
+    padding-bottom: 0.5rem;
+}
+
+.page-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #0088a9, #6803c7);
+}
+
+/* Grid cursuri - similar cu testele dar cu ajustări specifice */
+.courses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2rem;
+    grid-auto-rows: 1fr;
+}
+
+/* Card curs - stilizare similară cu testele */
 .course-card {
-    border: 1px solid #ccc;
-    padding: 10px;
-    margin: 10px;
-    display: inline-block;
-    width: 250px;
-    vertical-align: top;
-}
-.course-card img {
-    width: 100%;
-    height: auto;
-}
-
-@import url('https://fonts.googleapis.com/css?family=Montserrat:500');
-
-
-li,a,button{
-    font-family: "Montserrat",sans-serif;
-    font-weight: 500;
-    font-size:16px;
-    color: #edf0f1;
-    text-decoration: none;
-}
-
-body{
-    background-color: #1E1F26;
-    color:#F4F4F4;
-    margin:0;
-    padding: 0;
-}
-
-
-.logo {
-    font-family: "Montserrat", sans-serif;
-    font-weight: 500;
-    font-size: 1.5rem;
-    color: white;
     display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.logo-icon {
-    /* Simple nest icon using CSS */
-    width: 24px;
-    height: 24px;
-    border: 2px solid #0088A9;
-    border-radius: 50%;
+    flex-direction: column;
+    height: 100%;
+    background: #2A2D38;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #3D404B;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     position: relative;
 }
 
-.logo-icon::before {
-    content: "<>";
+.course-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 136, 169, 0.2);
+    border-color: #4E5465;
+}
+
+/* Imagine curs - stil îmbunătățit */
+.course-image-container {
+    height: 180px;
+    position: relative;
+    background: #1E2029;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.course-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.9;
+    transition: opacity 0.3s ease, transform 0.5s ease;
+}
+
+.default-image {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #3A3F4B 0%, #2A2D38 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.placeholder-icon {
+    width: 60px;
+    height: 60px;
+    fill: #4E5465;
+}
+
+.course-card:hover .course-image {
+    opacity: 1;
+    transform: scale(1.03);
+}
+
+/* Conținutul cursului - stilizare îmbunătățită */
+.course-content {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.course-content h3 {
+    margin: 0 0 0.8rem 0;
+    font-size: 1.2rem;
+    color: #F0F2F5;
+    font-weight: 600;
+    min-height: 3.6em;
+}
+
+.course-description {
+    color: #A0A4B0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+    flex-grow: 1;
+}
+
+/* Pret - stil nou */
+.course-price-container {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.course-price {
+    font-weight: bold;
+    color: #fff;
+    font-size: 1.1rem;
+}
+
+.course-price.free {
+    color: #6EE7B7;
+}
+
+/* Buton - stil îmbunătățit */
+.course-button {
+    background: #0088A9;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.course-button:hover {
+    background: #006F8A;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Categorii (dacă există) */
+.course-category {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 10px;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    backdrop-filter: blur(5px);
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #f4f4f4;
+}
+
+/* Responsiv - similar cu testele */
+@media (max-width: 768px) {
+    .courses-container {
+        padding: 15px;
+    }
+    
+    .courses-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .course-content h3 {
+        min-height: auto;
+    }
+    
+    .course-image-container {
+        height: 120px;
+    }
+}
+
+/* Animatie hover card */
+.course-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #0088a9, #6803c7);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.course-card:hover::before {
+    opacity: 0.8;
 }
 
 
+/* Stiluri pentru pagina de plată (course_payment.html) */
+body {
+    background-color: #1E2029;
+    color: #f4f4f4;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 
-button{
-    padding: 9px 25px;
-    background-color: rgba(0,136,169,1);
-    border:none;
-    border-radius: 50px;
-    cursor:pointer;
-    transition: all 0.3s ease 0s;
 }
 
-button:hover{
-    background-color: rgba(0,136,169,0.8);
+h2 {
+    color: #00BFFF;
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+    border-bottom: 2px solid #3D404B;
+    padding-bottom: 0.5rem;
 }
 
-
-.signup button {
-    background-color: rgba(155, 155, 155, 0.3); 
+p {
+    margin-bottom: 2rem;
+    color: #ccc;
 }
 
-.signup button:hover {
-    background-color: rgba(155, 155, 155, 0.5);
+form {
+    background: #2A2D38;
+    padding: 2rem;
+    border-radius: 8px;
+    border: 1px solid #3D404B;
+    max-width: 500px;
+    margin-top: 2rem;
 }
 
-.logout button {
-    background-color: rgba(155, 155, 155, 0.3); 
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #f4f4f4;
+    font-weight: 500;
 }
 
-.logout button:hover {
-    background-color: rgba(155, 155, 155, 0.5);
+select {
+    width: 100%;
+    padding: 0.8rem;
+    background: #1E2029;
+    border: 1px solid #3D404B;
+    border-radius: 6px;
+    color: #f4f4f4;
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+}
+
+button[type="submit"] {
+    background: #00BFFF;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.3s ease;
+}
+
+button[type="submit"]:hover {
+    background: #009ACD;
+}
+
+/* Stiluri pentru pagina de confirmare (enrollment_confirmation.html) */
+body > h2 {
+    color: #6EE7B7;
+    border-bottom: none;
+    margin-top: 2rem;
+}
+
+body > a {
+    display: inline-block;
+    margin-top: 1.5rem;
+    padding: 0.8rem 1.5rem;
+    background: #2A2D38;
+    color: #00BFFF;
+    border-radius: 6px;
+    text-decoration: none;
+    border: 1px solid #3D404B;
+    transition: all 0.3s ease;
+}
+
+body > a:hover {
+    background: #3D404B;
+    color: #00a9d8;
+}
+
+/* Responsivitate */
+@media (max-width: 768px) {
+    body {
+        padding: 1rem;
+    }
+    
+    form {
+        padding: 1.5rem;
+    }
 }
