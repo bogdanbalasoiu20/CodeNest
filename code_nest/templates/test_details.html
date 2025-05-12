@@ -61,7 +61,14 @@
         </div>
 
         <div class="test-actions">
-            <a href="#" class="start-test-button">Start Test</a>
+                {% if can_retake %}
+                    <a href="{% url 'take_test' test.id %}" class="start-test-button">Start Test</a>
+                {% else %}
+                    <div class="alert alert-warning">
+                        {{ cooldown_message }}
+                    </div>
+                {% endif %}
+
             <button class="preview-button" id="previewBtn">Preview Questions</button>
         </div>
     </main>

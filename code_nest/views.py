@@ -194,9 +194,9 @@ def add_question(request):
 
 def take_test(request, test_id):
     if not request.user.is_authenticated:
-        messages.info(request, "Before solving a test, you must be logged in")
+        messages.info(request, "Trebuie să fii autentificat pentru a rezolva teste")
         return redirect('login')
-
+    
     test = get_object_or_404(
         Test.objects.prefetch_related(
             'categories',
@@ -205,79 +205,100 @@ def take_test(request, test_id):
         id=test_id
     )
 
-    questions = test.questions.all()
+    # Verificare cooldown
+    latest_attempt = TestResult.objects.filter(
+        user=request.user,
+        test=test
+    ).order_by('-date_taken').first()
+
+    if latest_attempt and latest_attempt.is_active_cooldown and latest_attempt.percentage < 100:
+        cooldown_time = latest_attempt.cooldown_until - timezone.now()
+        hours = cooldown_time.seconds // 3600
+        minutes = (cooldown_time.seconds % 3600) // 60
+        messages.error(request, 
+            f"Test blocat. Poți încerca din nou peste {cooldown_time.days} zile, {hours} ore și {minutes} minute")
+        return redirect('test_details', test_id=test_id)
+
+    # Inițializare statistici
+    stats = {
+        'average_score': test.average_score,
+        'completion_rate': test.completion_rate,
+        'attempts_count': test.attempts_count,
+        'user_score': None,
+        'user_rank': None,
+        'best_score': None
+    }
+
+    # Statistici utilizator
+    if request.user.is_authenticated:
+        user_results = TestResult.objects.filter(
+            user=request.user,
+            test=test
+        ).order_by('-percentage')
+        
+        if user_results.exists():
+            stats.update({
+                'best_score': user_results.first().percentage,
+                'user_rank': TestResult.objects.filter(
+                    test=test,
+                    percentage__gt=user_results.first().percentage
+                ).count() + 1
+            })
 
     if request.method == 'POST':
+        # Calcul scor
         score = 0
-        total_points = sum(q.points for q in questions)
+        total_points = sum(q.points for q in test.questions.all())
+        answers = {}
 
-        for question in questions:
+        for question in test.questions.all():
             selected = request.POST.get(f"question_{question.id}")
-            if selected:
-                is_correct = question.answers.filter(is_correct=True, option_label=selected).exists()
-                if is_correct:
-                    score += question.points
+            answers[f"question_{question.id}"] = selected
+            if selected and question.answers.filter(is_correct=True, option_label=selected).exists():
+                score += question.points
 
         percentage = round((score / total_points) * 100, 2) if total_points > 0 else 0
-        completed = percentage == 100
 
-        # Salvează rezultatul doar dacă ești autentificat
         if request.user.is_authenticated:
-            TestResult.objects.update_or_create(
+            # Salvare rezultat (cooldown se setează automat în model pentru scoruri <100)
+            TestResult.objects.create(
                 user=request.user,
                 test=test,
-                defaults={
-                    'score': score,
-                    'completed': completed,
-                    'percentage': percentage,
-                    'date_taken': timezone.now()
-                }
+                score=score,
+                percentage=percentage,
+                completed=(percentage == 100)
             )
 
-            # XP update
-            xp_multiplier = {
-                'beginner': 10,
-                'intermediate': 15,
-                'advanced': 30
-            }.get(test.difficulty.lower(), 10)
-            request.user.XP += score * xp_multiplier
-            request.user.save()
+            # Actualizare statistici
+            stats.update({
+                'user_score': percentage,
+                'user_rank': TestResult.objects.filter(
+                    test=test,
+                    percentage__gt=percentage
+                ).count() + 1,
+                'best_score': max(percentage, stats['best_score'] if stats['best_score'] else 0)
+            })
 
+            # Invalidate cache
             cache.delete(f'test_stats_{test_id}')
-
-        # Statistici după submit
-        stats = {
-            'average_score': test.average_score,
-            'completion_rate': test.completion_rate,
-            'attempts_count': test.attempts_count,
-            'last_updated': test.updated_at.timestamp(),
-            'user_score': percentage,
-            'user_rank': TestResult.objects.filter(test=test, percentage__gt=percentage).count() + 1
-        }
 
         return render(request, "test_result.html", {
             "test": test,
             "score": score,
             "total": total_points,
             "percentage": percentage,
-            "perfect_score": completed,
+            "perfect_score": (percentage == 100),
             "stats": stats
         })
 
-    # Statistici afișate în mod implicit la GET
-    stats = {
-        'average_score': test.average_score,
-        'completion_rate': test.completion_rate,
-        'attempts_count': test.attempts_count,
-        'last_updated': test.updated_at.timestamp()
-    }
-
     return render(request, "take_test.html", {
         "test": test,
-        "questions": questions,
+        "questions": test.questions.all(),
         "time_limit": test.time_in_minutes,
         "categories": test.categories.all(),
-        "stats": stats
+        "stats": stats,
+        "best_score": stats['best_score'],
+        "can_retake": True
     })
     
     
@@ -373,23 +394,51 @@ def testDetails(request, test_id):
     test = get_object_or_404(Test, id=test_id)
     sample_questions = test.questions.all().order_by('?')[:3]
     
-    completed_count = request.user.testresults.filter(completed=True).count()
-    total_tests = Test.objects.count()
-    progress = round((completed_count / total_tests) * 100) if total_tests > 0 else 0
-    
-    is_completed = False
-    if request.user.is_authenticated:
-        result = TestResult.objects.filter(user=request.user, test=test).first()
-        is_completed = result.completed if result else False
-    
-    return render(request, 'test_details.html', {
+    context = {
         'test': test,
-        'is_completed': is_completed,
-        'progress': progress,
-        'completed_count': completed_count,
-        'total_tests': total_tests,
-        'sample_questions': sample_questions
-    })
+        'sample_questions': sample_questions,
+        'test_difficulty': test.get_difficulty_display(),
+        'can_retake': True  # Valoare implicită
+    }
+    
+    if request.user.is_authenticated:
+        # Calculăm progresul general
+        completed_count = request.user.testresults.filter(completed=True).count()
+        total_tests = Test.objects.count()
+        progress = round((completed_count / total_tests) * 100) if total_tests > 0 else 0
+        
+        # Obținem cel mai bun scor pentru acest test
+        best_attempt = TestResult.objects.filter(
+            user=request.user,
+            test=test
+        ).order_by('-percentage').first()
+        
+        if best_attempt:
+            context.update({
+                'best_attempt': best_attempt,
+                'has_perfect_score': best_attempt.percentage == 100,
+            })
+            
+            # Verificăm dacă testul poate fi reluat
+            if best_attempt.percentage == 100:
+                context['can_retake'] = True
+            elif best_attempt.is_active_cooldown:
+                context['can_retake'] = False
+                cooldown_time = best_attempt.cooldown_until - timezone.now()
+                hours = cooldown_time.seconds // 3600
+                minutes = (cooldown_time.seconds % 3600) // 60
+                context['cooldown_message'] = (
+                    f"Poți relua testul peste {cooldown_time.days} zile, "
+                    f"{hours} ore și {minutes} minute"
+                )
+        
+        context.update({
+            'progress': progress,
+            'completed_count': completed_count,
+            'total_tests': total_tests,
+        })
+
+    return render(request, 'test_details.html', context)
     
     
     

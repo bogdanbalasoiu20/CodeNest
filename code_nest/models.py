@@ -204,18 +204,20 @@ class TestResult(models.Model):
     completed = models.BooleanField(default=False)
     percentage = models.FloatField(default=0)
     date_taken = models.DateTimeField(auto_now_add=True)
-
-    
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        # Forțează actualizarea câmpului updated_at
-        Test.objects.filter(id=self.test_id).update(updated_at=timezone.now())
+    cooldown_until = models.DateTimeField(null=True, blank=True)
     
     class Meta:
-        unique_together = ("user", "test")  # Opțional: un user poate da testul o singură dată
-
-    def __str__(self):
-        return f"{self.user.username} - {self.test.title}: {self.score} puncte"
+        ordering = ['-date_taken']
+    
+    def save(self, *args, **kwargs):
+        # Setăm cooldown doar pentru scoruri sub 10 la salvarea inițială
+        if not self.pk and self.percentage < 100:
+            self.cooldown_until = timezone.now() + timezone.timedelta(days=2)
+        super().save(*args, **kwargs)
+    
+    @property
+    def is_active_cooldown(self):
+        return self.cooldown_until and self.cooldown_until > timezone.now()
     
                                        
     
