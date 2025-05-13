@@ -219,4 +219,17 @@ class TestResult(models.Model):
         return False  # Întotdeauna False acum
     
                                        
-    
+   
+   
+class UserAnswer(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    test_result = models.ForeignKey(TestResult, on_delete=models.CASCADE)
+    selected_answer = models.ForeignKey(Answer, on_delete=models.CASCADE, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'question', 'test_result')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.question.text[:50]}"

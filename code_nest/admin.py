@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import (
     CustomUser, Category, Course, CourseEnrollment, 
-    Review, Test, Question, Answer,TestResult
+    Review, Test, Question, Answer,TestResult,UserAnswer
 )
 
 
@@ -80,4 +80,6 @@ class QuestionAdmin(admin.ModelAdmin):
 #     search_fields = ('text', 'question__text')
 
 
-
+@admin.register(UserAnswer)
+class UserAnswerAdmin(admin.ModelAdmin):
+    list_display=('user__username','question__id','question__test','selected_answer')

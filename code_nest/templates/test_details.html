@@ -46,6 +46,15 @@
             <p>{{ test.description }}</p>
         </div>
 
+        {% if best_attempt %}
+        <div class="best-score-container">
+            <h3>Your Best Score: {{ best_attempt.percentage }}%</h3>
+            <div class="best-score-actions">
+                <button class="view-answers-btn" id="viewAnswersBtn">View Answers</button>
+            </div>
+        </div>
+        {% endif %}
+
         <div class="categories-container">
             {% for category in test.categories.all %}
             <div class="category-chip">
@@ -124,6 +133,35 @@
     </div>
 </div>
 
+<div id="answersModal" class="preview-modal">
+    <div class="modal-content">
+        <span class="close-answers-modal">&times;</span>
+        <h3 class="modal-title">Your Best Attempt Answers</h3>
+        <div class="attempt-info">
+            <span>Score: {{ best_attempt.percentage }}%</span>
+            <span>Date: {{ best_attempt.date_taken|date:"M d, Y" }}</span>
+        </div>
+        
+        <div class="answers-list">
+            {% for question in test_questions %}
+            <div class="answer-item">
+                <p class="question-text">{{ forloop.counter }}. {{ question.text }}</p>
+                <div class="user-answer">
+                    <strong>Your answer:</strong>
+                    <span>{{ question.user_answer }}</span>
+                </div>
+                <div class="correct-answer">
+                    <strong>Correct answer:</strong>
+                    <span>{{ question.correct_answer }}</span>
+                </div>
+            </div>
+            {% empty %}
+            <p>No questions available</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
 <script>
     const modal = document.getElementById("previewModal");
     const btn = document.getElementById("previewBtn");
@@ -198,6 +236,35 @@ function updateStats(data) {
 // Pornește polling după încărcare
 document.addEventListener('DOMContentLoaded', () => {
     startStatsPolling({{ test.id }});
+});
+
+
+const answersModal = document.getElementById("answersModal");
+const viewAnswersBtn = document.getElementById("viewAnswersBtn");
+const closeAnswersModal = document.getElementsByClassName("close-answers-modal")[0];
+
+// Deschide modalul cu răspunsuri
+if (viewAnswersBtn) {
+    viewAnswersBtn.addEventListener('click', function() {
+        answersModal.style.display = "block";
+        document.body.style.overflow = "hidden";
+    });
+}
+
+// Închide modalul cu răspunsuri
+if (closeAnswersModal) {
+    closeAnswersModal.addEventListener('click', function() {
+        answersModal.style.display = "none";
+        document.body.style.overflow = "auto";
+    });
+}
+
+// Închide când se click în afara
+window.addEventListener('click', function(event) {
+    if (event.target == answersModal) {
+        answersModal.style.display = "none";
+        document.body.style.overflow = "auto";
+    }
 });
 
 </script>

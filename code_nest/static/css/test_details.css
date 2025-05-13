@@ -504,3 +504,76 @@
         padding: 20px;
     }
 }
+
+
+
+/* Best score container */
+.best-score-container {
+    background: #e8f5e9;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin: 2rem 0;
+    border-left: 4px solid #4caf50;
+}
+
+.best-score-container h3 {
+    margin: 0 0 1rem 0;
+    color: #2e7d32;
+}
+
+.best-score-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.view-answers-btn {
+    background: #4caf50;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.view-answers-btn:hover {
+    background: #388e3c;
+}
+
+/* Answers modal */
+.attempt-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.answers-list {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.answer-item {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #f5f5f5;
+    border-radius: 4px;
+}
+
+.question-text {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.user-answer, .correct-answer {
+    margin: 0.5rem 0;
+}
+
+.user-answer span {
+    color: #2196f3;
+}
+
+.correct-answer span {
+    color: #4caf50;
+}
