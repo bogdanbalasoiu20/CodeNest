@@ -1,26 +1,116 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/base.css' %}">
+<link rel="stylesheet" href="{% static 'css/leaderboard.css' %}">
+{% endblock %}
+
 
 {% block content %}
-<h2>🏆 Leaderboard</h2>
+<div class="leaderboard-container">
+    <h2>🏆 Leaderboard</h2>
 
-<table>
-    <thead>
-        <tr>
-            <th>Rank</th>
-            <th>User</th>
-            <th>XP</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for user in top_user %}
-        <tr>
-            <td>{{ forloop.counter }}</td>
-            <td>{{ user.username }}</td>
-            <td>{{ user.XP }}</td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="3">No users found.</td></tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <table class="leaderboard-table">
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>User</th>
+                <th>XP</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in top_user %}
+            <tr>
+                <td>
+                    {% if forloop.counter == 1 %}
+                    🥇
+                    {% elif forloop.counter == 2 %}
+                    🥈
+                    {% elif forloop.counter == 3 %}
+                    🥉
+                    {% else %}
+                    {{ forloop.counter }}
+                    {% endif %}
+                </td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.XP }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3">No users found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="terminal-box">
+  <div class="terminal-header">
+    <span class="dot red"></span>
+    <span class="dot yellow"></span>
+    <span class="dot green"></span>
+  </div>
+  <div class="terminal-content" id="terminal-lines"></div>
+</div>
+
+<script>
+const terminalBlocks = [
+  [
+    "$ cd CodeNest",
+    "$ cd leaderboard",
+    "$ ls -la",
+    "🏆 first_place/  second_place/  rising_stars/"
+  ],
+  [
+    "$ cd first_place",
+    "echo 'Congrats! Keep pushing boundaries!'"
+  ],
+  [
+    "$ cd ../rising_stars",
+    "echo 'Every coder starts somewhere. You’re doing great!'"
+  ],
+];
+
+const terminal = document.getElementById("terminal-lines");
+
+let blockIndex = 0;
+let lineIndex = 0;
+let charIndex = 0;
+let currentLine = "";
+
+const typingSpeed = 40;
+const linePause = 800;     // între linii
+const blockPause = 3000;   // după un bloc complet
+
+function typeLine() {
+  currentLine = terminalBlocks[blockIndex][lineIndex];
+  if (charIndex < currentLine.length) {
+    terminal.innerHTML += currentLine.charAt(charIndex);
+    charIndex++;
+    setTimeout(typeLine, typingSpeed);
+  } else {
+    terminal.innerHTML += "<br>";
+    charIndex = 0;
+    lineIndex++;
+
+    if (lineIndex < terminalBlocks[blockIndex].length) {
+      setTimeout(typeLine, linePause);
+    } else {
+      // Terminăm blocul curent
+      blockIndex = (blockIndex + 1) % terminalBlocks.length;
+      lineIndex = 0;
+      setTimeout(() => {
+        terminal.innerHTML = "";
+        typeLine();
+      }, blockPause);
+    }
+  }
+}
+
+document.addEventListener("DOMContentLoaded", typeLine);
+</script>
+
+
+
 {% endblock %}

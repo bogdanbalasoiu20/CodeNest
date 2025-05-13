@@ -12,7 +12,7 @@ body {
     background-color: #2A2B33;
     padding: 40px;
     border-radius: 15px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 form {
@@ -71,4 +71,43 @@ form {
     border-left: 5px solid #00C3FF;
     border-radius: 5px;
     margin-bottom: 10px;
+}
+
+
+.rocket-launchpad {
+    position: fixed;
+    bottom: 10px;
+    left: 50px;
+    width: 100px;
+    height: 100px;
+    z-index: 1000;
+}
+
+.rocket {
+    width: 120px;
+    /* sau cât vrei tu */
+    height: auto;
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: transform 0.9s ease;
+    z-index: 20;
+}
+
+
+.rocket.launch {
+    transform: translate(-50%, -800px); /* se duce mai sus */
+    transition: transform 0.9s ease-in; /* urcă mai rapid */
+}
+
+@keyframes rocket-launch {
+    0% {
+        transform: translateY(0);
+    }
+
+    100% {
+        transform: translateY(-800px) rotate(-10deg);
+        opacity: 0;
+    }
 }
