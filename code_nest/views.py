@@ -245,26 +245,56 @@ def take_test(request, test_id):
         percentage = round((score / total_points) * 100, 2) if total_points > 0 else 0
 
         if request.user.is_authenticated:
-            # Actualizare sau creare rezultat
             best_existing = TestResult.objects.filter(
                 user=request.user,
                 test=test
             ).order_by('-percentage').first()
 
-            # Creăm sau actualizăm TestResult
-            test_result, created = TestResult.objects.update_or_create(
-                user=request.user,
-                test=test,
-                defaults={
-                    'score': score,
-                    'percentage': percentage,
-                    'completed': (percentage == 100),
-                    'date_taken': timezone.now(),
-                    'cooldown_until': None
-                }
-            )
+            # Verificăm dacă trebuie să actualizăm scorul
+            should_update = (not best_existing) or (percentage > best_existing.percentage)
+            
+            if should_update:
+                # Ștergem toate înregistrările vechi pentru acest user și test
+                TestResult.objects.filter(user=request.user, test=test).delete()
+                
+                # Creăm o nouă înregistrare cu scorul curent
+                test_result = TestResult.objects.create(
+                    user=request.user,
+                    test=test,
+                    score=score,
+                    percentage=percentage,
+                    completed=(percentage == 100),
+                    date_taken=timezone.now(),
+                    cooldown_until=None
+                )
+                
+                # Calcul XP
+                xp_multiplier = {
+                    'beginner': 10,
+                    'intermediate': 15,
+                    'advanced': 30
+                }.get(test.difficulty.lower(), 10)
+                xp_earned = max(1, int(score * xp_multiplier))
+                
+                # Actualizare XP utilizator
+                user = request.user
+                user.XP += xp_earned
+                user.save(update_fields=['XP'])
+                
+                stats.update({
+                    'user_score': percentage,
+                    'user_rank': TestResult.objects.filter(
+                        test=test,
+                        percentage__gt=percentage
+                    ).count() + 1,
+                    'best_score': percentage
+                })
+            else:
+                # Dacă nu e scor mai bun, păstrăm înregistrarea existentă
+                test_result = best_existing
+                xp_earned = 0
 
-            # Salvăm răspunsurile în UserAnswer
+            # Salvăm răspunsurile (indiferent dacă e scor nou sau nu)
             for question in test.questions.all():
                 selected_option = request.POST.get(f"question_{question.id}")
                 if selected_option:
@@ -274,43 +304,10 @@ def take_test(request, test_id):
                             user=request.user,
                             question=question,
                             test_result=test_result,
-                            defaults={
-                                'selected_answer': selected_answer
-                            }
+                            defaults={'selected_answer': selected_answer}
                         )
                     except Answer.DoesNotExist:
-                        # Dacă răspunsul selectat nu există (ar trebui să fie imposibil)
                         pass
-
-            # Actualizare statistici doar dacă am făcut modificări
-            if not best_existing or percentage > best_existing.percentage:
-                xp_multiplier = {
-                    'beginner': 10,
-                    'intermediate': 15,
-                    'advanced': 30
-                }.get(test.difficulty.lower(), 10)
-                
-                # Calcul XP final (minim 1 XP chiar și pentru scoruri mici)
-                xp_earned = max(1, int(score * xp_multiplier))
-                
-                # Actualizare XP utilizator
-                user = request.user
-                user.XP += xp_earned
-                user.save(update_fields=['XP'])
-                print(f"XP actualizat pentru {user.username}: {user.XP}")
-                
-                # Mesaj de succes
-                messages.success(request, f"Felicitări! Ai obținut {xp_earned} XP pentru noul tău scor maxim!")
-                
-                
-                stats.update({
-                    'user_score': percentage,
-                    'user_rank': TestResult.objects.filter(
-                        test=test,
-                        percentage__gt=percentage
-                    ).count() + 1,
-                    'best_score': max(percentage, stats['best_score'] if stats['best_score'] else 0)
-                })
 
             # Invalidate cache
             cache.delete(f'test_stats_{test_id}')
@@ -321,7 +318,8 @@ def take_test(request, test_id):
             "total": total_points,
             "percentage": percentage,
             "perfect_score": (percentage == 100),
-            "stats": stats
+            "stats": stats,
+            "xp_earned": xp_earned
         })
 
     return render(request, "take_test.html", {

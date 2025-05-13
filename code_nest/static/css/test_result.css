@@ -1,0 +1,231 @@
+:root {
+    --primary: #4361ee;
+    --primary-light: #4895ef;
+    --secondary: #3f37c9;
+    --success: #4cc9f0;
+    --danger: #f72585;
+    --warning: #f8961e;
+    --light: #f8f9fa;
+    --dark: #1b263b;
+    --border-radius: 12px;
+    --box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.result-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    font-family: 'Poppins', sans-serif;
+}
+
+.result-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.test-badge h1 {
+    font-size: 2rem;
+    color: var(--dark);
+    margin: 0.5rem 0;
+}
+
+.difficulty-badge {
+    padding: 0.3rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+}
+
+.difficulty-badge.beginner {
+    background: var(--success);
+    color: white;
+}
+
+.difficulty-badge.intermediate {
+    background: var(--warning);
+    color: white;
+}
+
+.difficulty-badge.advanced {
+    background: var(--danger);
+    color: white;
+}
+
+.perfect-score-banner {
+    background: linear-gradient(135deg, #4cc9f0, #4361ee);
+    color: white;
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    margin-top: 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #ffd700;
+    opacity: 0;
+    top: -10px;
+}
+
+@keyframes confetti-fall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(500px) rotate(360deg); opacity: 0; }
+}
+
+.result-card {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    box-shadow: var(--box-shadow);
+    margin-bottom: 2rem;
+}
+
+.score-display {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
+.score-circle {
+    position: relative;
+    width: 120px;
+    height: 120px;
+}
+
+.progress-ring-circle {
+    transition: stroke-dashoffset 0.35s;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+}
+
+.progress-ring-circle {
+    stroke: #e0e0e0;
+}
+
+.progress-bar {
+    stroke: var(--primary);
+}
+
+.score-percent {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--dark);
+}
+
+.score-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.score-points, .xp-earned {
+    text-align: center;
+}
+
+.label {
+    display: block;
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 0.3rem;
+}
+
+.value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--dark);
+}
+
+.xp-earned .value {
+    color: var(--primary);
+}
+
+.result-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 0.8rem 1.5rem;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--secondary);
+    transform: translateY(-2px);
+}
+
+.btn-outline {
+    border: 2px solid var(--primary);
+    color: var(--primary);
+}
+
+.btn-outline:hover {
+    background: var(--primary-light);
+    color: white;
+}
+
+.btn-retake {
+    background: var(--warning);
+    color: white;
+}
+
+.btn-retake:hover {
+    background: #e07d0e;
+    transform: translateY(-2px);
+}
+
+.improvement-tips {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    border-left: 4px solid var(--primary);
+}
+
+.improvement-tips h3 {
+    margin-top: 0;
+    color: var(--dark);
+}
+
+@media (max-width: 768px) {
+    .result-container {
+        padding: 1rem;
+    }
+    
+    .score-display {
+        flex-direction: column;
+    }
+    
+    .result-actions {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}

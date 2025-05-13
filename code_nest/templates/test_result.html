@@ -1,22 +1,106 @@
-{% extends "base.html" %}
-{% block content %}
-  <h2>Your result at "{{ test.title }}"</h2>
 
-  {% if score >= 5 %}
-    <h2>Congratulations! You passed the test!</h2>
-    <p>Your grade is <strong>{{ score }}</strong></p>
-  {% else %}
-    <h2>Unfortunately, you failed the test! :(</h2>
-    <p>Your grade is <strong>{{ score }}/10</strong></p>
-    <p>You can retake the test after two days. Good luck!</p> 
-  {% endif %}
+{% load static %}
 
-  {% if perfect_score %}
-<div class="alert alert-success">
-    🎉 Perfect score! This test has been marked as completed.
-</div>
-{% endif %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/test_result.css' %}">
 
-  <a href="{% url 'home' %}">Back to Home</a>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 {% endblock %}
 
+{% block content %}
+<div class="result-container">
+    <div class="result-header">
+        <div class="test-badge">
+            <span class="difficulty-badge {{ test.difficulty|lower }}">{{ test.difficulty }}</span>
+            <h1>{{ test.title }}</h1>
+        </div>
+        
+        {% if perfect_score %}
+        <div class="perfect-score-banner">
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <span>🎉 Perfect Score! 🎉</span>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="result-card">
+        <div class="score-display">
+            <div class="score-circle">
+                <svg class="progress-ring" width="120" height="120">
+                    <circle class="progress-ring-circle" stroke-width="8" fill="transparent" r="52" cx="60" cy="60"/>
+                    <circle class="progress-ring-circle progress-bar" stroke-width="8" stroke-dasharray="326.56" 
+                            stroke-dashoffset="{{ percentage|floatformat:0|default:100 }}" 
+                            fill="transparent" r="52" cx="60" cy="60"/>
+                </svg>
+                <span class="score-percent">{{ percentage|floatformat:0 }}%</span>
+            </div>
+            <div class="score-details">
+                <div class="score-points">
+                    <span class="label">Score</span>
+                    <span class="value">{{ score }}/{{ total }}</span>
+                </div>
+                <div class="xp-earned">
+                    <span class="label">XP Earned</span>
+                    <span class="value">+{{ xp_earned }} XP</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="result-actions">
+            <a href="{% url 'test_details' test.id %}" class="btn btn-outline">
+                <i class="fas fa-chart-bar"></i> Test Details
+            </a>
+            <a href="{% url 'home' %}" class="btn btn-primary">
+                <i class="fas fa-home"></i> Back to Home
+            </a>
+            {% if can_retake %}
+            <a href="{% url 'take_test' test.id %}" class="btn btn-retake">
+                <i class="fas fa-redo"></i> Retake Test
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="improvement-tips">
+        <h3>How to improve</h3>
+        {% if percentage >= 80 %}
+        <p>Great job! You're mastering this topic. Consider trying more advanced tests.</p>
+        {% elif percentage >= 50 %}
+        <p>Good effort! Review your incorrect answers and try the test again.</p>
+        {% else %}
+        <p>Don't worry! We recommend reviewing the study materials before retaking.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+<script>
+// Animate the progress circle
+document.addEventListener('DOMContentLoaded', function() {
+    const circle = document.querySelector('.progress-bar');
+    const radius = circle.r.baseVal.value;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - ({{ percentage|floatformat:0 }} / 100) * circumference;
+    circle.style.strokeDashoffset = circumference;
+    
+    setTimeout(() => {
+        circle.style.transition = 'stroke-dashoffset 1.5s ease-in-out';
+        circle.style.strokeDashoffset = offset;
+    }, 300);
+    
+    // Confetti effect for perfect score
+    {% if perfect_score %}
+    setTimeout(() => {
+        const confetti = document.querySelectorAll('.confetti');
+        confetti.forEach((el, i) => {
+            el.style.animation = `confetti-fall ${1 + i * 0.3}s ease-in forwards`;
+        });
+    }, 500);
+    {% endif %}
+});
+</script>
+{% endblock %}
