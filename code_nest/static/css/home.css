@@ -172,3 +172,62 @@
         transform: scaleX(1);
     }
 }
+
+.typewriter-line {
+    font-size: 1.6rem;
+    color: #00C3FF;
+    font-weight: 600;
+    font-family: 'Courier New', Courier, monospace; /* stil terminal */
+    height: 40px;
+    margin-bottom: 30px;
+    display: inline-block;
+    text-shadow: 0 0 10px rgba(0, 195, 255, 0.6);
+}
+
+#typewriter {
+    animation: fadeInWord 0.5s ease-in-out;
+    display: inline-block;
+}
+
+#typewriter::after {
+    content: "|";
+    animation: blink 0.7s infinite;
+    margin-left: 5px;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+@keyframes fadeInWord {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.typewriter-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40px;
+    margin-bottom: 30px;
+}
+
+#typewriter {
+    font-size: 1.5rem;
+    color: #00C3FF;
+    font-weight: 600;
+    font-family: 'Share Tech Mono', monospace;
+    text-shadow: 0 0 10px rgba(0, 195, 255, 0.6);
+    animation: fadeInWord 0.5s ease-in-out;
+}
+
+.typewriter-line {
+    font-family: 'Share Tech Mono', monospace;
+}
+
