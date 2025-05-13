@@ -5,10 +5,12 @@
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/base.css' %}">
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
 {% endblock %}
 
 
 {% block content %}
+<div class="profile-container">
   <h2>Profile</h2>
   <form method="post">
     {% csrf_token %}
@@ -29,5 +31,5 @@
 
   <a href="{% url 'password_change' %}">🔑 Change password</a><br>
   <a href="{% url 'delete_account' %}" style="color: red;">🗑️ Delete account</a>
-
+</div>
 {% endblock %}

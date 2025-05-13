@@ -1,1 +1,80 @@
-/*de adaugat chestii extra fata de base.css*/
+.profile-container {
+    max-width: 800px;
+    margin: 80px auto;
+    padding: 40px;
+    background-color: #2A2B33;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    color: #f4f4f4;
+}
+
+.profile-container h2,
+.profile-container h3 {
+    color: #00C3FF;
+    margin-bottom: 20px;
+}
+
+.profile-container form {
+    margin-bottom: 30px;
+}
+
+.profile-container label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.profile-container input,
+.profile-container select,
+.profile-container textarea {
+    width: 100%;
+    padding: 10px;
+    background-color: #1E1F26;
+    color: #f4f4f4;
+    border: 1px solid #444;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.profile-container button {
+    background-color: #00C3FF;
+    color: #fff;
+    padding: 10px 25px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.profile-container button:hover {
+    background-color: #009DC3;
+}
+
+.profile-container ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.profile-container li {
+    margin-bottom: 10px;
+    background-color: #1E1F26;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border-left: 4px solid #00C3FF;
+}
+
+.profile-container a {
+    display: inline-block;
+    margin-top: 15px;
+    text-decoration: none;
+    color: #00C3FF;
+}
+
+.profile-container a:hover {
+    text-decoration: underline;
+}
+
+.profile-container a[style*="red"] {
+    color: red !important;
+    font-weight: bold;
+}

@@ -6,11 +6,15 @@
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/base.css' %}">
 <link rel="stylesheet" href="{% static 'css/home.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
 <div class="hero-section">
-    <h1>CodeNest – Learn to Code the Fun Way</h1>
+    <h1>CodeNest - Learn to Code the Fun Way</h1>
+    <div class="typewriter-wrapper">
+        <span id="typewriter"></span>
+    </div>
     <p>
         CodeNest started from a dream — a dream to help young people learn how to code in a way that's fun, modern, and
         meaningful.
@@ -131,6 +135,54 @@
             car.classList.add('animate');
         });
     });
+</script>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+    const phrases = [
+        "Learn to code.",
+        "Build real projects.",
+        "Create games.",
+        "Be a developer.",
+        "Think like a coder."
+    ];
+    const el = document.getElementById("typewriter");
+
+    let i = 0;         // index pentru cuvinte
+    let j = 0;         // index pentru litere
+    let isDeleting = false;
+    let delay = 100;   // viteza de scriere
+    let deleteDelay = 40;
+    let holdDelay = 3000; // ⏳ timp de pauză între propoziții
+
+    function type() {
+        const current = phrases[i];
+        el.textContent = current.substring(0, j);
+
+        if (!isDeleting && j < current.length) {
+            j++;
+            setTimeout(type, delay);
+        } else if (isDeleting && j > 0) {
+            j--;
+            setTimeout(type, deleteDelay);
+        } else {
+            if (!isDeleting) {
+                // Când e complet afișată propoziția, așteaptă 3 secunde
+                isDeleting = true;
+                setTimeout(type, holdDelay);
+            } else {
+                // Trecem la următoarea propoziție
+                isDeleting = false;
+                i = (i + 1) % phrases.length;
+                setTimeout(type, delay);
+            }
+        }
+    }
+
+    type();
+});
+    
 </script>
 
 
