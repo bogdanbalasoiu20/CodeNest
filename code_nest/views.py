@@ -205,20 +205,6 @@ def take_test(request, test_id):
         id=test_id
     )
 
-    # Verificare cooldown
-    latest_attempt = TestResult.objects.filter(
-        user=request.user,
-        test=test
-    ).order_by('-date_taken').first()
-
-    if latest_attempt and latest_attempt.is_active_cooldown and latest_attempt.percentage < 100:
-        cooldown_time = latest_attempt.cooldown_until - timezone.now()
-        hours = cooldown_time.seconds // 3600
-        minutes = (cooldown_time.seconds % 3600) // 60
-        messages.error(request, 
-            f"Test blocat. Poți încerca din nou peste {cooldown_time.days} zile, {hours} ore și {minutes} minute")
-        return redirect('test_details', test_id=test_id)
-
     # Inițializare statistici
     stats = {
         'average_score': test.average_score,
@@ -229,7 +215,6 @@ def take_test(request, test_id):
         'best_score': None
     }
 
-    # Statistici utilizator
     if request.user.is_authenticated:
         user_results = TestResult.objects.filter(
             user=request.user,
@@ -260,27 +245,38 @@ def take_test(request, test_id):
         percentage = round((score / total_points) * 100, 2) if total_points > 0 else 0
 
         if request.user.is_authenticated:
-            # Salvare rezultat (cooldown se setează automat în model pentru scoruri <100)
-            TestResult.objects.create(
+            # Actualizare sau creare rezultat
+            best_existing = TestResult.objects.filter(
                 user=request.user,
-                test=test,
-                score=score,
-                percentage=percentage,
-                completed=(percentage == 100)
-            )
+                test=test
+            ).order_by('-percentage').first()
 
-            # Actualizare statistici
-            stats.update({
-                'user_score': percentage,
-                'user_rank': TestResult.objects.filter(
+            # Salvăm doar dacă nu există rezultat sau noul rezultat e mai bun
+            if not best_existing or percentage > best_existing.percentage:
+                TestResult.objects.update_or_create(
+                    user=request.user,
                     test=test,
-                    percentage__gt=percentage
-                ).count() + 1,
-                'best_score': max(percentage, stats['best_score'] if stats['best_score'] else 0)
-            })
+                    defaults={
+                        'score': score,
+                        'percentage': percentage,
+                        'completed': (percentage == 100),
+                        'date_taken': timezone.now(),
+                        'cooldown_until': None  # Eliminăm orice cooldown existent
+                    }
+                )
+                
+                # Actualizare statistici doar dacă am făcut modificări
+                stats.update({
+                    'user_score': percentage,
+                    'user_rank': TestResult.objects.filter(
+                        test=test,
+                        percentage__gt=percentage
+                    ).count() + 1,
+                    'best_score': max(percentage, stats['best_score'] if stats['best_score'] else 0)
+                })
 
-            # Invalidate cache
-            cache.delete(f'test_stats_{test_id}')
+                # Invalidate cache
+                cache.delete(f'test_stats_{test_id}')
 
         return render(request, "test_result.html", {
             "test": test,
@@ -298,7 +294,7 @@ def take_test(request, test_id):
         "categories": test.categories.all(),
         "stats": stats,
         "best_score": stats['best_score'],
-        "can_retake": True
+        "can_retake": True  # Mereu True acum
     })
     
     
@@ -398,7 +394,7 @@ def testDetails(request, test_id):
         'test': test,
         'sample_questions': sample_questions,
         'test_difficulty': test.get_difficulty_display(),
-        'can_retake': True  # Valoare implicită
+        'can_retake': True  # Mereu True acum
     }
     
     if request.user.is_authenticated:
@@ -418,19 +414,6 @@ def testDetails(request, test_id):
                 'best_attempt': best_attempt,
                 'has_perfect_score': best_attempt.percentage == 100,
             })
-            
-            # Verificăm dacă testul poate fi reluat
-            if best_attempt.percentage == 100:
-                context['can_retake'] = True
-            elif best_attempt.is_active_cooldown:
-                context['can_retake'] = False
-                cooldown_time = best_attempt.cooldown_until - timezone.now()
-                hours = cooldown_time.seconds // 3600
-                minutes = (cooldown_time.seconds % 3600) // 60
-                context['cooldown_message'] = (
-                    f"Poți relua testul peste {cooldown_time.days} zile, "
-                    f"{hours} ore și {minutes} minute"
-                )
         
         context.update({
             'progress': progress,

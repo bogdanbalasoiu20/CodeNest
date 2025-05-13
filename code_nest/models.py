@@ -207,17 +207,16 @@ class TestResult(models.Model):
     cooldown_until = models.DateTimeField(null=True, blank=True)
     
     class Meta:
-        ordering = ['-date_taken']
-    
-    def save(self, *args, **kwargs):
-        # Setăm cooldown doar pentru scoruri sub 10 la salvarea inițială
-        if not self.pk and self.percentage < 100:
-            self.cooldown_until = timezone.now() + timezone.timedelta(days=2)
-        super().save(*args, **kwargs)
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'test'],
+                name='unique_user_test'
+            )
+        ]
     
     @property
     def is_active_cooldown(self):
-        return self.cooldown_until and self.cooldown_until > timezone.now()
+        return False  # Întotdeauna False acum
     
                                        
     
