@@ -1,0 +1,74 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #1E1F26;
+    font-family: 'Montserrat', sans-serif;
+    color: #f4f4f4;
+}
+
+.login-container {
+    max-width: 400px;
+    margin: 100px auto;
+    background-color: #2A2B33;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group label {
+    margin-bottom: 5px;
+    display: block;
+    font-weight: 500;
+    color: #ccc;
+}
+
+.form-group input[type="text"],
+.form-group input[type="password"] {
+    width: 100%;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    background-color: #1e1f26;
+    color: #f4f4f4;
+    font-size: 1rem;
+    outline: none;
+}
+
+.form-group input:focus {
+    border: 2px solid #00C3FF;
+}
+
+.btn {
+    background-color: #00C3FF;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #00a3d7;
+}
+
+.messages {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 20px;
+}
+
+.messages li {
+    padding: 10px;
+    background-color: #444;
+    border-left: 5px solid #00C3FF;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
