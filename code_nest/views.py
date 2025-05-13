@@ -435,19 +435,31 @@ def testDetails(request, test_id):
         if best_attempt:
             for question in test.questions.all():
                 try:
-                    user_answer = UserAnswer.objects.get(
+                    user_answer_obj = UserAnswer.objects.get(
                         question=question,
                         test_result=best_attempt
-                    ).selected_answer.option_label
+                    )
+                    user_answer_label = user_answer_obj.selected_answer.option_label
+                    # Obținem textul complet al răspunsului selectat de utilizator
+                    user_answer_text = Answer.objects.get(
+                        question=question,
+                        option_label=user_answer_label
+                    ).text
                 except UserAnswer.DoesNotExist:
-                    user_answer = "Not answered"
+                    user_answer_label = "Not answered"
+                    user_answer_text = ""
+                except Answer.DoesNotExist:
+                    user_answer_text = ""
                 
                 correct_answer = question.answers.filter(is_correct=True).first()
+                correct_answer_text = correct_answer.text if correct_answer else ""
                 
                 test_questions.append({
                     'text': question.text,
-                    'user_answer': user_answer,
-                    'correct_answer': correct_answer.option_label if correct_answer else "No correct answer set",
+                    'user_answer_label': user_answer_label,  # Litera răspunsului (A, B, C...)
+                    'user_answer_text': user_answer_text,    # Textul complet al răspunsului
+                    'correct_answer_label': correct_answer.option_label if correct_answer else "N/A",
+                    'correct_answer_text': correct_answer_text,
                     'id': question.id
                 })
     
@@ -460,7 +472,6 @@ def testDetails(request, test_id):
         'user_attempts': None,
         'best_attempt': best_attempt if request.user.is_authenticated else None
     }
-    
     
     if request.user.is_authenticated:
         # Calculăm progresul general

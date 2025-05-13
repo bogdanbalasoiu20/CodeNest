@@ -135,137 +135,131 @@
 
 <div id="answersModal" class="preview-modal">
     <div class="modal-content">
-        <span class="close-answers-modal">&times;</span>
+        <span class="close-modal">&times;</span>
         <h3 class="modal-title">Your Best Attempt Answers</h3>
         <div class="attempt-info">
-            <span>Score: {{ best_attempt.percentage }}%</span>
-            <span>Date: {{ best_attempt.date_taken|date:"M d, Y" }}</span>
+            <span class="score-badge">Score: {{ best_attempt.percentage }}%</span>
+            <span class="date-badge">Date: {{ best_attempt.date_taken|date:"M d, Y" }}</span>
         </div>
         
-        <div class="answers-list">
+        <ul class="question-list">
             {% for question in test_questions %}
-            <div class="answer-item">
-                <p class="question-text">{{ forloop.counter }}. {{ question.text }}</p>
-                <div class="user-answer">
-                    <strong>Your answer:</strong>
-                    <span>{{ question.user_answer }}</span>
+            <li class="question-item">
+                <span class="question-number">{{ forloop.counter }}</span>
+                <div class="question-content">
+                    <p class="question-text">{{ question.text }}</p>
+                    
+                    <div class="user-answer">
+                        <strong>Your answer:</strong>
+                        <span>
+                            {% if question.user_answer_label != "Not answered" %}
+                                {{ question.user_answer_label }}. {{ question.user_answer_text }}
+                            {% else %}
+                                Not answered
+                            {% endif %}
+                        </span>
+                    </div>
+                    
+                    {% comment %} <div class="correct-answer">
+                        <strong>Correct answer:</strong>
+                        <span>{{ question.correct_answer_label }}. {{ question.correct_answer_text }}</span>
+                    </div> {% endcomment %}
                 </div>
-                <div class="correct-answer">
-                    <strong>Correct answer:</strong>
-                    <span>{{ question.correct_answer }}</span>
-                </div>
-            </div>
+            </li>
             {% empty %}
-            <p>No questions available</p>
+            <p class="no-answers">No questions available</p>
             {% endfor %}
-        </div>
+        </ul>
     </div>
 </div>
 
 <script>
-    const modal = document.getElementById("previewModal");
-    const btn = document.getElementById("previewBtn");
-    const span = document.getElementsByClassName("close-modal")[0];
-
-    // Deschide modalul
-    btn.addEventListener('click', function() {
-        modal.style.display = "block";
-        document.body.style.overflow = "hidden";
-    });
-
-    // Închide modalul
-    span.addEventListener('click', function() {
-        modal.style.display = "none";
-        document.body.style.overflow = "auto";
-    });
-
-    // Închide când se click în afara
-    window.addEventListener('click', function(event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
-            document.body.style.overflow = "auto";
+    // Gestionare universală pentru toate modalele
+    class ModalManager {
+        constructor(modalId, closeClass, openBtnId) {
+            this.modal = document.getElementById(modalId);
+            this.closeBtn = this.modal.querySelector(`.${closeClass}`);
+            this.openBtn = document.getElementById(openBtnId);
+            
+            this.init();
         }
-    });
-
-    // Închide cu ESC
-    document.addEventListener('keydown', function(event) {
-        if (event.key === "Escape" && modal.style.display == "block") {
-            modal.style.display = "none";
-            document.body.style.overflow = "auto";
-        }
-    });
-
-
-    // Actualizează statisticile în timp real (pentru alți utilizatori)
-function startStatsPolling(testId) {
-    let lastUpdate = {{ stats.last_updated|default:"0" }};
-    
-    function checkStats() {
-        fetch(`/code_nest/test/${testId}/stats/`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.last_updated > lastUpdate) {
-                    updateStats(data);
-                    lastUpdate = data.last_updated;
+        
+        init() {
+            // Deschidere modal
+            if (this.openBtn) {
+                this.openBtn.addEventListener('click', () => this.open());
+            }
+            
+            // Închidere modal
+            if (this.closeBtn) {
+                this.closeBtn.addEventListener('click', () => this.close());
+            }
+            
+            // Închidere la click în exterior
+            window.addEventListener('click', (event) => {
+                if (event.target === this.modal) {
+                    this.close();
                 }
             });
+            
+            // Închidere cu ESC
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && this.modal.style.display === 'block') {
+                    this.close();
+                }
+            });
+        }
+        
+        open() {
+            this.modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+        
+        close() {
+            this.modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
     }
-    
-    // Verifică la fiecare 15 secunde
-    setInterval(checkStats, 15000);
-}
 
-function updateStats(data) {
-    document.querySelector('.avg-score').textContent =
-        data.average_score !== undefined && data.average_score !== null
-            ? data.average_score
-            : '-';
-
-    document.querySelector('.completion-rate').textContent =
-        data.completion_rate !== undefined && data.completion_rate !== null
-            ? `${data.completion_rate}%`
-            : '-';
-
-    document.querySelector('.attempts-count').textContent =
-        data.attempts_count !== undefined
-            ? data.attempts_count
-            : '0';
-}
-
-
-// Pornește polling după încărcare
-document.addEventListener('DOMContentLoaded', () => {
-    startStatsPolling({{ test.id }});
-});
-
-
-const answersModal = document.getElementById("answersModal");
-const viewAnswersBtn = document.getElementById("viewAnswersBtn");
-const closeAnswersModal = document.getElementsByClassName("close-answers-modal")[0];
-
-// Deschide modalul cu răspunsuri
-if (viewAnswersBtn) {
-    viewAnswersBtn.addEventListener('click', function() {
-        answersModal.style.display = "block";
-        document.body.style.overflow = "hidden";
+    // Inițializare la încărcare pagină
+    document.addEventListener('DOMContentLoaded', () => {
+        // Inițializare modale
+        new ModalManager('previewModal', 'close-modal', 'previewBtn');
+        new ModalManager('answersModal', 'close-modal', 'viewAnswersBtn');
+        
+        // Pornire polling statistici
+        startStatsPolling({{ test.id }});
     });
-}
 
-// Închide modalul cu răspunsuri
-if (closeAnswersModal) {
-    closeAnswersModal.addEventListener('click', function() {
-        answersModal.style.display = "none";
-        document.body.style.overflow = "auto";
-    });
-}
-
-// Închide când se click în afara
-window.addEventListener('click', function(event) {
-    if (event.target == answersModal) {
-        answersModal.style.display = "none";
-        document.body.style.overflow = "auto";
+    // Funcții pentru statistici (păstrate din implementarea existentă)
+    function startStatsPolling(testId) {
+        let lastUpdate = {{ stats.last_updated|default:"0" }};
+        
+        function checkStats() {
+            fetch(`/code_nest/test/${testId}/stats/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.last_updated > lastUpdate) {
+                        updateStats(data);
+                        lastUpdate = data.last_updated;
+                    }
+                });
+        }
+        
+        setInterval(checkStats, 15000);
     }
-});
 
+    function updateStats(data) {
+        const updateIfExists = (selector, value, fallback = '-') => {
+            const element = document.querySelector(selector);
+            if (element) {
+                element.textContent = value !== undefined && value !== null ? value : fallback;
+            }
+        };
+        
+        updateIfExists('.avg-score', data.average_score);
+        updateIfExists('.completion-rate', data.completion_rate, `${data.completion_rate}%`);
+        updateIfExists('.attempts-count', data.attempts_count, '0');
+    }
 </script>
 {% endblock %}
