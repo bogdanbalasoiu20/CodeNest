@@ -139,7 +139,7 @@
 }
 
 .course-price.free {
-    color: #6EE7B7;
+    color: #ffffff;
 }
 
 /* Buton - stil îmbunătățit */
@@ -280,7 +280,7 @@ button[type="submit"]:hover {
 
 /* Stiluri pentru pagina de confirmare (enrollment_confirmation.html) */
 body > h2 {
-    color: #6EE7B7;
+    color: #ffffff;
     border-bottom: none;
     margin-top: 2rem;
 }
