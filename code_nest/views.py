@@ -16,6 +16,7 @@ from django.core.cache import cache
 from django.utils import timezone
 from django.db.models import Prefetch, Q
 from . import models
+from django.db.models import Max
 
 
 def home(request):
@@ -254,8 +255,10 @@ def take_test(request, test_id):
             should_update = (not best_existing) or (percentage > best_existing.percentage)
             
             if should_update:
-                # Ștergem toate înregistrările vechi pentru acest user și test
-                TestResult.objects.filter(user=request.user, test=test).delete()
+                # Ștergem UserAnswer-urile asociate rezultatului vechi (dacă există)
+                if best_existing:
+                    UserAnswer.objects.filter(test_result=best_existing).delete()
+                    best_existing.delete()
                 
                 # Creăm o nouă înregistrare cu scorul curent
                 test_result = TestResult.objects.create(
@@ -267,7 +270,7 @@ def take_test(request, test_id):
                     date_taken=timezone.now(),
                     cooldown_until=None
                 )
-                
+
                 # Calcul XP
                 xp_multiplier = {
                     'beginner': 10,
@@ -275,12 +278,12 @@ def take_test(request, test_id):
                     'advanced': 30
                 }.get(test.difficulty.lower(), 10)
                 xp_earned = max(1, int(score * xp_multiplier))
-                
+
                 # Actualizare XP utilizator
                 user = request.user
                 user.XP += xp_earned
                 user.save(update_fields=['XP'])
-                
+
                 stats.update({
                     'user_score': percentage,
                     'user_rank': TestResult.objects.filter(
@@ -290,24 +293,25 @@ def take_test(request, test_id):
                     'best_score': percentage
                 })
             else:
-                # Dacă nu e scor mai bun, păstrăm înregistrarea existentă
                 test_result = best_existing
                 xp_earned = 0
 
-            # Salvăm răspunsurile (indiferent dacă e scor nou sau nu)
-            for question in test.questions.all():
-                selected_option = request.POST.get(f"question_{question.id}")
-                if selected_option:
-                    try:
-                        selected_answer = question.answers.get(option_label=selected_option)
-                        UserAnswer.objects.update_or_create(
-                            user=request.user,
-                            question=question,
-                            test_result=test_result,
-                            defaults={'selected_answer': selected_answer}
-                        )
-                    except Answer.DoesNotExist:
-                        pass
+            # Salvăm răspunsurile doar dacă am creat un TestResult nou (scor mai bun)
+            if should_update:
+                for question in test.questions.all():
+                    selected_option = request.POST.get(f"question_{question.id}")
+                    if selected_option:
+                        try:
+                            selected_answer = question.answers.get(option_label=selected_option)
+                            UserAnswer.objects.create(
+                                user=request.user,
+                                question=question,
+                                test_result=test_result,
+                                selected_answer=selected_answer
+                            )
+                        except Answer.DoesNotExist:
+                            pass
+
 
             # Invalidate cache
             cache.delete(f'test_stats_{test_id}')
@@ -427,42 +431,54 @@ def testDetails(request, test_id):
     
     test_questions = []
     if request.user.is_authenticated and hasattr(request.user, 'testresults'):
-        best_attempt = TestResult.objects.filter(
+        # Pas 1: Găsim cel mai bun scor obținut
+        best_score = TestResult.objects.filter(
             user=request.user,
             test=test
-        ).order_by('-percentage').first()
+        ).aggregate(Max('percentage'))['percentage__max']
         
-        if best_attempt:
+        if best_score is not None:
+            # Pas 2: Găsim toate încercările cu acest scor maxim
+            best_attempts = TestResult.objects.filter(
+                user=request.user,
+                test=test,
+                percentage=best_score
+            ).order_by('-date_taken')
+            
+            # Pas 3: Alegem cea mai recentă încercare cu scor maxim
+            best_attempt = best_attempts.first()
+            
+            # Pas 4: Obținem răspunsurile pentru această încercare specifică
+            user_answers = UserAnswer.objects.filter(
+                test_result=best_attempt
+            ).select_related('selected_answer', 'question')
+            
+            # Creăm un dicționar pentru acces rapid
+            user_answers_dict = {ua.question.id: ua for ua in user_answers}
+            
+            # Pas 5: Construim lista de întrebări cu răspunsurile corecte
             for question in test.questions.all():
-                try:
-                    user_answer_obj = UserAnswer.objects.get(
-                        question=question,
-                        test_result=best_attempt
-                    )
-                    user_answer_label = user_answer_obj.selected_answer.option_label
-                    # Obținem textul complet al răspunsului selectat de utilizator
-                    user_answer_text = Answer.objects.get(
-                        question=question,
-                        option_label=user_answer_label
-                    ).text
-                except UserAnswer.DoesNotExist:
+                user_answer = user_answers_dict.get(question.id)
+                
+                if user_answer:
+                    user_answer_label = user_answer.selected_answer.option_label
+                    user_answer_text = user_answer.selected_answer.text
+                else:
                     user_answer_label = "Not answered"
-                    user_answer_text = ""
-                except Answer.DoesNotExist:
                     user_answer_text = ""
                 
                 correct_answer = question.answers.filter(is_correct=True).first()
-                correct_answer_text = correct_answer.text if correct_answer else ""
                 
                 test_questions.append({
                     'text': question.text,
-                    'user_answer_label': user_answer_label,  # Litera răspunsului (A, B, C...)
-                    'user_answer_text': user_answer_text,    # Textul complet al răspunsului
+                    'user_answer_label': user_answer_label,
+                    'user_answer_text': user_answer_text,
                     'correct_answer_label': correct_answer.option_label if correct_answer else "N/A",
-                    'correct_answer_text': correct_answer_text,
+                    'correct_answer_text': correct_answer.text if correct_answer else "",
                     'id': question.id
                 })
     
+    # Restul codului rămâne neschimbat
     context = {
         'test': test,
         'test_questions': test_questions,
@@ -470,27 +486,23 @@ def testDetails(request, test_id):
         'test_difficulty': test.get_difficulty_display(),
         'can_retake': True,
         'user_attempts': None,
-        'best_attempt': best_attempt if request.user.is_authenticated else None
+        'best_attempt': best_attempt if request.user.is_authenticated and 'best_attempt' in locals() else None
     }
     
     if request.user.is_authenticated:
-        # Calculăm progresul general
         completed_count = request.user.testresults.filter(completed=True).count()
         total_tests = Test.objects.count()
         progress = round((completed_count / total_tests) * 100) if total_tests > 0 else 0
         
-        # Obținem toate încercările și cel mai bun scor
         user_attempts = TestResult.objects.filter(
             user=request.user,
             test=test
         ).order_by('-date_taken')
         
         if user_attempts.exists():
-            best_attempt = user_attempts.order_by('-percentage').first()
             context.update({
                 'user_attempts': user_attempts,
-                'best_attempt': best_attempt,
-                'has_perfect_score': best_attempt.percentage == 100,
+                'has_perfect_score': any(attempt.percentage == 100 for attempt in user_attempts),
             })
         
         context.update({
