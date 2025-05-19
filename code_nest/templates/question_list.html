@@ -4,21 +4,45 @@
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/base.css' %}">
 <link rel="stylesheet" href="{% static 'css/forum_list.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 {% endblock %}
 
 {% block content %}
-<h2>Recent Questions</h2>
-
-<a href="{% url 'forum_ask_question' %}" class="btn btn-primary mb-3">Ask a Question</a>
-
-<ul class="forum-question-list">
-  {% for question in questions %}
-    <li class="forum-question">
-      <a href="{% url 'forum_question_detail' question.pk %}">{{ question.title }}</a><br>
-      <small class="forum-meta">Asked by {{ question.author.username }} on {{ question.created_at|date:"d.m.Y H:i" }}</small>
-    </li>
-  {% empty %}
-    <p>No questions have been posted yet.</p>
-  {% endfor %}
-</ul>
+<div class="forum-container">
+    <h2>Recent Questions</h2>
+    
+    <div class="forum-controls">
+        <form method="get" class="search-form">
+            <div class="search-container">
+                <input type="text" 
+                       name="search" 
+                       placeholder="Search question..." 
+                       value="{{ search_query }}"
+                       class="search-input">
+                <button type="submit" class="search-button">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </form>
+        
+        <a href="{% url 'forum_ask_question' %}" class="btn btn-primary ask-question-btn">
+            <i class="fas fa-plus"></i> Ask a Question
+        </a>
+    </div>
+    
+    <div class="questions-scroll-container">
+        <ul class="forum-question-list">
+            {% for question in questions %}
+            <li class="forum-question">
+                <a href="{% url 'forum_question_detail' question.pk %}" class="question-link">{{ question.title }}</a>
+                <small class="forum-meta">Asked by {{ question.author.username }} on {{ question.created_at|date:"d.m.Y H:i" }}</small>
+            </li>
+            {% empty %}
+            <li class="no-questions">
+                <p>No questions have been posted yet.</p>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
 {% endblock %}

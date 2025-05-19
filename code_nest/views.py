@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect, get_object_or_404
-from .models import CustomUser,UserAnswer, Test, Question, Answer, TestResult,ForumQuestion,ForumAnswer
+from .models import CustomUser,UserAnswer, Test, Question, Answer, TestResult,ForumQuestion,ForumAnswer,AnswerLike
 from django.http import HttpResponse
 from .forms import CustomAuthenticationForm, Register, ProfileForm, QuestionForm, TestFilterForm,ForumAnswerForm,ForumQuestionForm
 from django.contrib.auth import login,logout
@@ -17,7 +17,8 @@ from django.utils import timezone
 from django.db.models import Prefetch, Q
 from . import models
 from django.db.models import Max
-
+from django.db.models import Count, Exists, OuterRef
+from django.db import transaction
 
 def home(request):
     return render(request,'home.html') 
@@ -538,8 +539,22 @@ def get_test_stats(request, test_id):
 
 
 def question_list(request):
+    search_query = request.GET.get('search', '')
+    
     questions = ForumQuestion.objects.order_by('-created_at')
-    return render(request, 'question_list.html', {'questions': questions})
+    
+    if search_query:
+        questions = questions.filter(
+            Q(title__icontains=search_query) | 
+            Q(body__icontains=search_query) |
+            Q(author__username__icontains=search_query)
+        )
+    
+    return render(request, 'question_list.html', {
+        'questions': questions,
+        'search_query': search_query
+    })
+
 
 def ask_question(request):
     if request.method == 'POST':
@@ -553,19 +568,66 @@ def ask_question(request):
         form = ForumQuestionForm()
     return render(request, 'ask_question.html', {'form': form})
 
+
+
 def question_detail(request, pk):
     question = get_object_or_404(ForumQuestion, pk=pk)
-    answers = question.forum_answers.all()  # <- related_name corect
+    
+    answers = question.forum_answers.annotate(
+        like_count=Count('likes'),
+        is_liked=Exists(
+            AnswerLike.objects.filter(
+                answer=OuterRef('pk'),
+                user=request.user.id if request.user.is_authenticated else None
+            )
+        )
+    )
+    
     if request.method == 'POST':
-        form = ForumAnswerForm(request.POST)
-        if form.is_valid():
-            a = form.save(commit=False)
-            a.author = request.user
-            a.question = question
-            a.save()
-            return redirect('forum_question_detail', pk=pk)
+        # Handle answer submission
+        if 'body' in request.POST:  # Regular answer form
+            form = ForumAnswerForm(request.POST)
+            if form.is_valid():
+                a = form.save(commit=False)
+                a.author = request.user
+                a.question = question
+                a.save()
+                return redirect('forum_question_detail', pk=pk)
+        
+        # Handle like submission
+        elif 'answer_id' in request.POST and request.user.is_authenticated:
+            answer = get_object_or_404(ForumAnswer, pk=request.POST['answer_id'])
+            
+            with transaction.atomic():  # Asigură integritatea datelor
+                like, created = AnswerLike.objects.get_or_create(
+                    answer=answer,
+                    user=request.user
+                )
+                
+                if created:
+                    # Acordă XP doar dacă like-ul este nou și NU este de la autorul răspunsului
+                    if request.user != answer.author:
+                        answer.author.XP += 50
+                        answer.author.save()
+                else:
+                    like.delete()  # Unlike if already liked
+                    # Dacă dorim să scădem XP la unlike (opțional):
+                    # if request.user != answer.author:
+                    #     answer.author.XP = max(0, answer.author.XP - 50)
+                    #     answer.author.save()
+                
+                return JsonResponse({
+                    'likes_count': answer.likes.count(),
+                    'is_liked': created or AnswerLike.objects.filter(
+                        answer=answer, 
+                        user=request.user
+                    ).exists(),
+                    'xp_awarded': created and request.user != answer.author
+                })
+    
     else:
         form = ForumAnswerForm()
+    
     return render(request, 'question_detail.html', {
         'question': question,
         'answers': answers,

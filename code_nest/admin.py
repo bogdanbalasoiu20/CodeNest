@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import (
     CustomUser, Category, Course, CourseEnrollment, 
-    Review, Test, Question, Answer,TestResult,UserAnswer,ForumAnswer,ForumQuestion
+    Review, Test, Question, Answer,TestResult,UserAnswer,ForumAnswer,ForumQuestion, AnswerLike
 )
 
 
@@ -93,3 +93,8 @@ class ForumQuestionAdmin(admin.ModelAdmin):
 @admin.register(ForumAnswer)
 class ForumAnswerAdmin(admin.ModelAdmin):
     list_display=('author__username','question__title','created_at')
+    
+    
+@admin.register(AnswerLike)
+class AnswerLikeAdmin(admin.ModelAdmin):
+    list_display=('answer','user__username')

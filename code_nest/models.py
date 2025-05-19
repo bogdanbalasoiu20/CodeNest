@@ -265,4 +265,17 @@ class ForumAnswer(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Răspuns la: {self.question.title}"                                        
+        return f"Răspuns la: {self.question.title}"   
+    
+    
+                                        # --------------------------
+                                        # ANSWERLIKE MODEL
+                                        # --------------------------   
+    
+class AnswerLike(models.Model):
+    answer = models.ForeignKey('ForumAnswer', on_delete=models.CASCADE, related_name='likes')
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('answer', 'user')  # Prevent duplicate likes                                     
