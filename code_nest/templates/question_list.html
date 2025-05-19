@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/base.css' %}">
+<link rel="stylesheet" href="{% static 'css/forum_list.css' %}">
+{% endblock %}
+
+{% block content %}
+<h2>Recent Questions</h2>
+
+<a href="{% url 'forum_ask_question' %}" class="btn btn-primary mb-3">Ask a Question</a>
+
+<ul class="forum-question-list">
+  {% for question in questions %}
+    <li class="forum-question">
+      <a href="{% url 'forum_question_detail' question.pk %}">{{ question.title }}</a><br>
+      <small class="forum-meta">Asked by {{ question.author.username }} on {{ question.created_at|date:"d.m.Y H:i" }}</small>
+    </li>
+  {% empty %}
+    <p>No questions have been posted yet.</p>
+  {% endfor %}
+</ul>
+{% endblock %}

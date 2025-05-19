@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect, get_object_or_404
-from .models import CustomUser,UserAnswer, Test, Question, Answer, TestResult
+from .models import CustomUser,UserAnswer, Test, Question, Answer, TestResult,ForumQuestion,ForumAnswer
 from django.http import HttpResponse
-from .forms import CustomAuthenticationForm, Register, ProfileForm, QuestionForm, TestFilterForm
+from .forms import CustomAuthenticationForm, Register, ProfileForm, QuestionForm, TestFilterForm,ForumAnswerForm,ForumQuestionForm
 from django.contrib.auth import login,logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -534,3 +534,40 @@ def get_test_stats(request, test_id):
     
     cache.set(f'test_stats_{test_id}', stats, timeout=30)
     return JsonResponse(stats)
+
+
+
+def question_list(request):
+    questions = ForumQuestion.objects.order_by('-created_at')
+    return render(request, 'question_list.html', {'questions': questions})
+
+def ask_question(request):
+    if request.method == 'POST':
+        form = ForumQuestionForm(request.POST)
+        if form.is_valid():
+            q = form.save(commit=False)
+            q.author = request.user
+            q.save()
+            return redirect('forum_question_list')
+    else:
+        form = ForumQuestionForm()
+    return render(request, 'ask_question.html', {'form': form})
+
+def question_detail(request, pk):
+    question = get_object_or_404(ForumQuestion, pk=pk)
+    answers = question.forum_answers.all()  # <- related_name corect
+    if request.method == 'POST':
+        form = ForumAnswerForm(request.POST)
+        if form.is_valid():
+            a = form.save(commit=False)
+            a.author = request.user
+            a.question = question
+            a.save()
+            return redirect('forum_question_detail', pk=pk)
+    else:
+        form = ForumAnswerForm()
+    return render(request, 'question_detail.html', {
+        'question': question,
+        'answers': answers,
+        'form': form
+    })

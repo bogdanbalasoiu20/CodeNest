@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/base.css' %}">
+<link rel="stylesheet" href="{% static 'css/forum_ask.css' %}">
+{% endblock %}
+
+{% block content %}
+<h2>Ask a Question</h2>
+
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn btn-success">Submit</button>
+</form>
+
+<a href="{% url 'forum_question_list' %}">← Back to Question List</a>
+{% endblock %}

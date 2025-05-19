@@ -220,7 +220,10 @@ class TestResult(models.Model):
     
                                        
    
-   
+                                        # --------------------------
+                                        # USERANSWER MODEL
+                                        # --------------------------
+  
 class UserAnswer(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
@@ -233,3 +236,33 @@ class UserAnswer(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.question.text[:50]}"
+    
+    
+    
+                                        # --------------------------
+                                        # FORUMQUESTION MODEL
+                                        # --------------------------
+                                        
+class ForumQuestion(models.Model):
+    title = models.CharField(max_length=255)
+    body = models.TextField()
+    author = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+    
+    
+                                        # --------------------------
+                                        # FORUMANSWER MODEL
+                                        # --------------------------    
+                                        
+                                        
+class ForumAnswer(models.Model):
+    question = models.ForeignKey(ForumQuestion, on_delete=models.CASCADE, related_name='forum_answers')
+    body = models.TextField()
+    author = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Răspuns la: {self.question.title}"                                        

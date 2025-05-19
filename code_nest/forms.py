@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.forms import UserCreationForm
-from .models import CustomUser,Test, Category
+from .models import CustomUser,Test, Category, ForumAnswer, ForumQuestion
 from django.core.exceptions import ValidationError
 import re
 import uuid
@@ -152,4 +152,16 @@ class TestFilterForm(forms.Form):
         required=False,
         label='Difficulty'
     )
+    
+    
+    
+class ForumQuestionForm(forms.ModelForm):
+    class Meta:
+        model = ForumQuestion
+        fields = ['title', 'body']
+
+class ForumAnswerForm(forms.ModelForm):
+    class Meta:
+        model = ForumAnswer
+        fields = ['body']
     

@@ -1,0 +1,72 @@
+/* forum_ask.css */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: "Montserrat", sans-serif;
+}
+
+h2 {
+    color: #0088a9;
+    margin-bottom: 20px;
+    font-size: 28px;
+}
+
+form {
+    background-color: #2a2b33;
+    padding: 25px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+form p {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: #f4f4f4;
+}
+
+input[type="text"],
+textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #444;
+    background-color: #3a3b44;
+    color: #f4f4f4;
+    font-family: "Montserrat", sans-serif;
+}
+
+textarea {
+    min-height: 150px;
+    resize: vertical;
+}
+
+.btn-success {
+    background-color: rgba(0,136,169,1);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.btn-success:hover {
+    background-color: rgba(0,136,169,0.8);
+}
+
+a {
+    color: #0088a9;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: #00a9d4;
+    text-decoration: underline;
+}

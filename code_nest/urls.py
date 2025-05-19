@@ -49,7 +49,12 @@ urlpatterns = [
     path('tests/test_details/<int:test_id>/',views.testDetails,name='test_details'),
     
     #test stats
-    path('test/<int:test_id>/stats/', views.get_test_stats, name='test-stats')
+    path('test/<int:test_id>/stats/', views.get_test_stats, name='test-stats'),
+    
+    #forum
+    path('forum/', views.question_list, name='forum_question_list'),
+    path('forum/ask/', views.ask_question, name='forum_ask_question'),
+    path('forum/<int:pk>/', views.question_detail, name='forum_question_detail'),
 
 
 ]
