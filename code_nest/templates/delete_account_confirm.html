@@ -1,10 +1,25 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/base.css' %}">
+<link rel="stylesheet" href="{% static 'css/delete_account.css' %}">
+{% endblock %}
+
 {% block content %}
+<div class="delete-confirm-container">
   <h2>Are you sure you want to delete your account?</h2>
-  
+  <p>This action is permanent and cannot be undone.</p>
+
   <form method="post">
     {% csrf_token %}
-    <button type="submit">Yes, delete my account!</button>
-    <a href="{% url 'profile' %}">No, I changed my mind!</a>
+    <div class="button-group">
+      <button type="submit">Yes, delete my account!</button>
+      <a href="{% url 'profile' %}">No, I changed my mind!</a>
+    </div>
   </form>
+</div>
 {% endblock %}
+
+
+<!-- adaugare_css_stergere_cont_si_parola -->

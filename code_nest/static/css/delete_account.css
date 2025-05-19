@@ -1,0 +1,58 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+}
+
+.delete-confirm-container {
+    max-width: 600px;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+    text-align: center;
+    color: white;
+    margin-top: 60px;
+}
+
+.delete-confirm-container h2 {
+    margin-bottom: 1rem;
+    color: #ff6b6b;
+    font-weight: bold;
+}
+
+.delete-confirm-container p {
+    margin-bottom: 2rem;
+}
+
+.delete-confirm-container button {
+    background-color: #ff6b6b;
+    color: white;
+    padding: 0.7rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-right: 1rem;
+}
+
+.delete-confirm-container a {
+    text-decoration: none;
+    background-color: #4fc3f7; /* albastru calm */
+    color: white;
+    padding: 0.7rem 1.5rem;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.delete-confirm-container a:hover {
+    background-color: #039be5;
+}
+
+.button-group {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
