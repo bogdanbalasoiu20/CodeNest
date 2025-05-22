@@ -1,0 +1,176 @@
+{% load static %}
+
+{% block extra_head %}
+<style>
+  /* AI Assistant Floating Button & Modal */
+  .ai-assistant-container {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 1000;
+  }
+
+  .ai-assistant-btn {
+    background-color: #6e48aa;
+    color: white;
+    border: none;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ai-assistant-btn:hover {
+    background-color: #7d5bbe;
+    transform: scale(1.05);
+  }
+
+  .ai-assistant-modal {
+    position: fixed;
+    right: 20px;
+    bottom: 90px;
+    width: 350px;
+    max-height: 70vh;
+    background-color: #2a2b32;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 1001;
+  }
+
+  .ai-assistant-modal.open {
+    display: flex;
+    animation: slideUp 0.3s ease;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .ai-assistant-header {
+    background-color: #6e48aa;
+    color: white;
+    padding: 15px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .ai-assistant-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+  }
+
+  .ai-assistant-body {
+    padding: 15px;
+    flex-grow: 1;
+    overflow-y: auto;
+    max-height: 50vh;
+  }
+
+  .ai-assistant-footer {
+    padding: 15px;
+    border-top: 1px solid #444;
+  }
+
+  .ai-assistant-question {
+    width: 100%;
+    height: 100px;
+    background-color: #1e1f26;
+    color: white;
+    padding: 10px;
+    border: 1px solid #555;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    resize: none;
+  }
+
+  .ai-assistant-submit {
+    background-color: #6e48aa;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .ai-assistant-submit:hover {
+    background-color: #7d5bbe;
+  }
+
+  .ai-assistant-response {
+    background-color: #1e1f26;
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 10px;
+    line-height: 1.5;
+  }
+
+  .ai-assistant-response strong {
+    color: #6e48aa;
+  }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const assistantBtn = document.querySelector('.ai-assistant-btn');
+    const assistantModal = document.querySelector('.ai-assistant-modal');
+    const closeBtn = document.querySelector('.ai-assistant-close');
+    
+    assistantBtn.addEventListener('click', function() {
+      assistantModal.classList.toggle('open');
+    });
+    
+    closeBtn.addEventListener('click', function() {
+      assistantModal.classList.remove('open');
+    });
+  });
+</script>
+{% endblock %}
+
+<!-- Add this to your base template where you want the assistant to appear -->
+<div class="ai-assistant-container">
+  <button class="ai-assistant-btn">AI</button>
+  <div class="ai-assistant-modal">
+    <div class="ai-assistant-header">
+      <span>CodeNest Assistant</span>
+      <button class="ai-assistant-close">&times;</button>
+    </div>
+    <div class="ai-assistant-body">
+      <form method="post" action="{% url 'ai_assistant' %}">
+        {% csrf_token %}
+        <textarea class="ai-assistant-question" name="question" placeholder="Ask anything..."></textarea>
+        <button type="submit" class="ai-assistant-submit">Ask</button>
+      </form>
+      
+      {% if response %}
+        <div class="ai-assistant-response">
+          <strong>Assistant:</strong>
+          <p>{{ response }}</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>

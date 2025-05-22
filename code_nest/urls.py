@@ -55,6 +55,10 @@ urlpatterns = [
     path('forum/', views.question_list, name='forum_question_list'),
     path('forum/ask/', views.ask_question, name='forum_ask_question'),
     path('forum/<int:pk>/', views.question_detail, name='forum_question_detail'),
+    
+    #ai
+    path('assistant/', views.ai_assistant, name='ai_assistant'),
+
 
 
 ]

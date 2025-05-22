@@ -126,3 +126,291 @@ button:hover{
     z-index: -1;
     background-color: #1E1F26;
 }
+
+
+
+/* AI Assistant Styles */
+/* AI Assistant - Optimized CSS */
+.ai-assistant-container {
+    position: fixed;
+    right: 30px;
+    bottom: 30px;
+    z-index: 10000; /* Peste toate elementele */
+    pointer-events: none; /* Permite click prin container */
+}
+
+.ai-assistant-btn {
+    position: relative;
+    background: linear-gradient(135deg, #6e48aa 0%, #9d50bb 100%);
+    color: white;
+    border: none;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(110, 72, 170, 0.3);
+    transition: all 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    pointer-events: auto; /* Activează evenimentele de mouse */
+    z-index: 10002; /* Peste modal */
+}
+
+.ai-assistant-btn::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+}
+
+.ai-assistant-btn:hover::after {
+    opacity: 1;
+    transform: scale(1.2);
+}
+
+.ai-assistant-btn:hover {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 6px 25px rgba(110, 72, 170, 0.4);
+}
+
+.ai-assistant-btn svg {
+    width: 28px;
+    height: 28px;
+    transition: transform 0.3s ease;
+}
+
+.ai-assistant-modal {
+    position: fixed;
+    right: 30px;
+    bottom: 100px;
+    width: 380px;
+    height: 500px;
+    max-height: 70vh;
+    background-color: #2a2b32;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 10001;
+    border: 1px solid #3a3b42;
+    transform-origin: bottom right;
+    pointer-events: auto;
+}
+
+.ai-assistant-modal.open {
+    display: flex;
+    animation: aiFadeIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards;
+}
+
+@keyframes aiFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.ai-assistant-header {
+    background: linear-gradient(135deg, #6e48aa 0%, #9d50bb 100%);
+    color: white;
+    padding: 18px 24px;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 17px;
+    position: relative;
+    z-index: 1;
+}
+
+.ai-assistant-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px;
+    margin: -4px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.ai-assistant-close:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.ai-assistant-body {
+    padding: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 60px);
+    overflow: hidden;
+}
+
+.ai-assistant-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+}
+
+.ai-assistant-question {
+    width: 100%;
+    min-height: 120px;
+    background-color: #1e1f26;
+    color: white;
+    padding: 16px;
+    border: none;
+    border-radius: 0;
+    margin: 0;
+    resize: none;
+    font-family: inherit;
+    font-size: 15px;
+    line-height: 1.5;
+    transition: background-color 0.2s;
+}
+
+.ai-assistant-question:focus {
+    outline: none;
+    background-color: #23242b;
+}
+
+.ai-assistant-input-area {
+    padding: 16px;
+    background-color: #23242b;
+    border-top: 1px solid #3a3b42;
+    position: relative;
+}
+
+.ai-assistant-footer {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.ai-assistant-submit {
+    background: linear-gradient(135deg, #6e48aa 0%, #9d50bb 100%);
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    box-shadow: 0 2px 8px rgba(110, 72, 170, 0.2);
+}
+
+.ai-assistant-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(110, 72, 170, 0.3);
+}
+
+.ai-assistant-submit:active {
+    transform: translateY(0);
+}
+
+.ai-assistant-submit svg {
+    width: 18px;
+    height: 18px;
+    transition: transform 0.2s;
+}
+
+.ai-assistant-submit:hover svg {
+    transform: translateX(2px);
+}
+
+.ai-assistant-response {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    background-color: #1e1f26;
+    scrollbar-width: thin;
+    scrollbar-color: #6e48aa #2a2b32;
+}
+
+.ai-assistant-response::-webkit-scrollbar {
+    width: 8px;
+}
+
+.ai-assistant-response::-webkit-scrollbar-track {
+    background: #2a2b32;
+}
+
+.ai-assistant-response::-webkit-scrollbar-thumb {
+    background-color: #6e48aa;
+    border-radius: 4px;
+}
+
+.ai-response-content {
+    line-height: 1.65;
+    font-size: 15px;
+}
+
+.ai-response-content strong {
+    color: #9d50bb;
+    display: block;
+    margin-bottom: 12px;
+    font-size: 16px;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 480px) {
+    .ai-assistant-container {
+        right: 16px;
+        bottom: 16px;
+    }
+    
+    .ai-assistant-btn {
+        width: 56px;
+        height: 56px;
+    }
+    
+    .ai-assistant-modal {
+        right: 16px;
+        bottom: 84px;
+        width: calc(100vw - 32px);
+        max-height: 65vh;
+        border-radius: 14px;
+    }
+    
+    .ai-assistant-header {
+        padding: 14px 20px;
+    }
+    
+    .ai-assistant-question {
+        min-height: 100px;
+        padding: 14px;
+    }
+}
+
+/* Animation for button when new response arrives */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.has-new-response {
+    animation: pulse 0.5s ease 2;
+}

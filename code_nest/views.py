@@ -19,6 +19,10 @@ from . import models
 from django.db.models import Max
 from django.db.models import Count, Exists, OuterRef
 from django.db import transaction
+import openai
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+
 
 def home(request):
     return render(request,'home.html') 
@@ -633,3 +637,46 @@ def question_detail(request, pk):
         'answers': answers,
         'form': form
     })
+    
+    
+    
+    
+client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
+
+@require_http_methods(["POST"])  # Acceptă doar metode POST
+def ai_assistant(request):
+    if request.method == 'POST':
+        question = request.POST.get('question')
+        if not question:
+            return JsonResponse({'error': 'Question is required'}, status=400)
+            
+        try:
+            # Apel API OpenAI
+            response = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[{"role": "user", "content": question}]
+            )
+            response_text = response.choices[0].message.content
+            
+            # Salvare în sesiune
+            request.session['ai_conversation'] = request.session.get('ai_conversation', []) + [
+                {'role': 'user', 'content': question},
+                {'role': 'assistant', 'content': response_text}
+            ]
+            
+            return JsonResponse({
+                'status': 'success',
+                'response': response_text
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'response': f"⚠️ Error: {str(e)}"
+            }, status=500)
+    
+    return JsonResponse({
+        'status': 'error',
+        'response': 'Invalid request method'
+    }, status=405)
+

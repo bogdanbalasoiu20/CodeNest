@@ -1,0 +1,246 @@
+<div class="ai-assistant-container">
+  <button class="ai-assistant-btn" aria-label="Open AI Assistant">
+    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 19V5M5 12l7-7 7 7"/>
+    </svg>
+  </button>
+  
+  <div class="ai-assistant-modal" aria-modal="true" role="dialog" aria-labelledby="ai-assistant-title">
+    <div class="ai-assistant-header">
+      <span id="ai-assistant-title">CodeNest Assistant</span>
+      <button class="ai-assistant-close" aria-label="Close assistant">
+        &times;
+      </button>
+    </div>
+    
+    <div class="ai-assistant-body">
+      <div class="ai-assistant-content">
+        <div class="ai-assistant-response" id="ai-response-container">
+          {% if ai_response %}
+            <div class="ai-response-content">
+              <strong>Assistant:</strong>
+              <p>{{ ai_response|linebreaksbr }}</p>
+            </div>
+          {% endif %}
+        </div>
+        
+        <div class="ai-assistant-input-area">
+          <form method="post" action="{% url 'ai_assistant' %}" id="ai-assistant-form">
+            {% csrf_token %}
+            <textarea 
+              class="ai-assistant-question" 
+              name="question" 
+              placeholder="Ask anything about coding..." 
+              required
+              aria-label="Your question"
+            ></textarea>
+            <div class="ai-assistant-footer">
+              <button type="submit" class="ai-assistant-submit">
+                <span>Send</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="22" y1="2" x2="11" y2="13"></line>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Elemente
+  const assistantBtn = document.querySelector('.ai-assistant-btn');
+  const assistantModal = document.querySelector('.ai-assistant-modal');
+  const closeBtn = document.querySelector('.ai-assistant-close');
+  const form = document.getElementById('ai-assistant-form');
+  const textarea = form.querySelector('textarea');
+  const submitBtn = form.querySelector('button[type="submit"]');
+  const responseContainer = document.getElementById('ai-response-container');
+  const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+  // Încărcare conversație salvată
+  function loadConversation() {
+    const savedConversation = sessionStorage.getItem('aiAssistantHistory');
+    if (savedConversation) {
+      responseContainer.innerHTML = savedConversation;
+      responseContainer.scrollTop = responseContainer.scrollHeight;
+    }
+  }
+
+  // Salvarea conversației
+  function saveConversation() {
+    sessionStorage.setItem('aiAssistantHistory', responseContainer.innerHTML);
+  }
+
+  // Adăugare mesaj în conversație
+  function addMessage(role, content) {
+    const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const messageHTML = `
+      <div class="message ${role}">
+        <strong>${role === 'user' ? 'You' : 'Assistant'} (${timestamp}):</strong>
+        <p>${content}</p>
+      </div>
+    `;
+    responseContainer.insertAdjacentHTML('beforeend', messageHTML);
+    saveConversation();
+    responseContainer.scrollTop = responseContainer.scrollHeight;
+  }
+
+  // Inițializare
+  loadConversation();
+
+  // Deschidere/închidere modal
+  function toggleModal() {
+    assistantModal.classList.toggle('open');
+    if (assistantModal.classList.contains('open')) {
+      textarea.focus();
+    }
+    setTimeout(() => {
+      responseContainer.scrollTop = responseContainer.scrollHeight;
+    }, 100);
+  }
+
+  // Evenimente
+  assistantBtn.addEventListener('click', toggleModal);
+  closeBtn.addEventListener('click', toggleModal);
+
+  // Închidere când se dă click în afara
+  document.addEventListener('click', function(event) {
+    if (!assistantModal.contains(event.target) && event.target !== assistantBtn) {
+      assistantModal.classList.remove('open');
+    }
+  });
+
+  // Trimitere formular
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const question = textarea.value.trim();
+    if (!question) return;
+
+    // Stare de încărcare
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `
+      <span>Processing...</span>
+      <svg class="spinner" width="18" height="18" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" stroke-dasharray="15.7 15.7"/>
+      </svg>
+    `;
+
+    // Adaugă întrebarea imediat
+    addMessage('user', question);
+    textarea.value = '';
+
+    try {
+      const response = await fetch(form.action, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': csrfToken,
+          'Accept': 'application/json'
+        },
+        body: `question=${encodeURIComponent(question)}`
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.response || `HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.response) {
+        addMessage('assistant', data.response);
+        assistantBtn.classList.add('has-new-response');
+        setTimeout(() => {
+          assistantBtn.classList.remove('has-new-response');
+        }, 2000);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      addMessage('assistant', "⚠️ " + error.message);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = `
+        <span>Send</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      `;
+    }
+  });
+
+  // Auto-resize textarea
+  textarea.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = (this.scrollHeight) + 'px';
+  });
+
+  // Navigare prin tastatură
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && assistantModal.classList.contains('open')) {
+      toggleModal();
+    }
+    if (e.ctrlKey && e.key === 'Enter' && assistantModal.classList.contains('open')) {
+      form.dispatchEvent(new Event('submit'));
+    }
+  });
+});
+</script>
+
+<style>
+    .message {
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    animation: fadeIn 0.3s ease;
+  }
+  
+  .message.user {
+    background-color: #2a3b4d;
+    margin-right: 20px;
+  }
+  
+  .message.assistant {
+    background-color: #3a2b32;
+    margin-left: 20px;
+  }
+  
+  .message strong {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 0.9em;
+    opacity: 0.8;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  /* Spinner animation */
+  .spinner {
+    animation: rotate 1s linear infinite;
+    transform-origin: center;
+  }
+  
+  @keyframes rotate {
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
+  /* Animație pentru butonul principal */
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+  }
+  
+  .has-new-response {
+    animation: pulse 1s ease 2;
+  }
+</style>
