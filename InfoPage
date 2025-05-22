@@ -21,3 +21,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("code_nest/", include("code_nest.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+5) de adaugat in settings.py:
+
+'code_nest.context_processors.ai_assistant_context',  (in TEMPLATES -> OPTIONS -> context_processors)
+
+OPENAI_API_KEY='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'  (cand dati push stergeti aceasta linie deoarece va da eroare in terminal, o sa o securizez mai tarziu)
