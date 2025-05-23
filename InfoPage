@@ -23,8 +23,16 @@ urlpatterns = [
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
-5) de adaugat in settings.py:
+5) de adaugat in settings.py pentru AI assistent:
 
 'code_nest.context_processors.ai_assistant_context',  (in TEMPLATES -> OPTIONS -> context_processors)
 
-Pentru OPENAI_API_KEY imi dati mesaj.
+  de adaugat in settings.py:
+
+from dotenv import load_dotenv
+load_dotenv(dotenv_path=Path('.') / '.env', override=True)  # Încarcă variabilele din .env
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+In .env trebuie adaugat OPEN_API_KEY(nu pot sa scriu parola aici ca o sa il stearga OPEN_AI)
+
+Va trebui sa va instalati cateva chestii
