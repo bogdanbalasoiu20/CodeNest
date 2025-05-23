@@ -643,40 +643,49 @@ def question_detail(request, pk):
     
 client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
 
-@require_http_methods(["POST"])  # Acceptă doar metode POST
+
+@require_http_methods(["POST"])
+@login_required
 def ai_assistant(request):
-    if request.method == 'POST':
-        question = request.POST.get('question')
-        if not question:
-            return JsonResponse({'error': 'Question is required'}, status=400)
-            
-        try:
-            # Apel API OpenAI
-            response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[{"role": "user", "content": question}]
-            )
-            response_text = response.choices[0].message.content
-            
-            # Salvare în sesiune
-            request.session['ai_conversation'] = request.session.get('ai_conversation', []) + [
-                {'role': 'user', 'content': question},
-                {'role': 'assistant', 'content': response_text}
-            ]
-            
-            return JsonResponse({
-                'status': 'success',
-                'response': response_text
-            })
-            
-        except Exception as e:
-            return JsonResponse({
-                'status': 'error',
-                'response': f"⚠️ Error: {str(e)}"
-            }, status=500)
-    
-    return JsonResponse({
-        'status': 'error',
-        'response': 'Invalid request method'
-    }, status=405)
+    question = request.POST.get('question')
+    if not question:
+        return JsonResponse({'error': 'Question is required'}, status=400)
+
+    try:
+        # Apel OpenAI
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": question}]
+        )
+        response_text = response.choices[0].message.content
+
+        # Salvare conversație per utilizator
+        session_key = f"ai_conversation_{request.user.id}"
+        conversation = request.session.get(session_key, [])
+        conversation += [
+            {'role': 'user', 'content': question},
+            {'role': 'assistant', 'content': response_text}
+        ]
+        request.session[session_key] = conversation
+
+        return JsonResponse({
+            'status': 'success',
+            'response': response_text
+        })
+
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'response': f"⚠️ Error: {str(e)}"
+        }, status=500)
+        
+        
+        
+        
+@require_GET
+@login_required
+def get_ai_conversation(request):
+    session_key = f"ai_conversation_{request.user.id}"
+    conversation = request.session.get(session_key, [])
+    return JsonResponse({'conversation': conversation})
 

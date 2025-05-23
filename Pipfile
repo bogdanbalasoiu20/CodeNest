@@ -10,6 +10,7 @@ sqlparse = "==0.5.3"
 tzdata = "==2025.1"
 openai = "*"
 psycopg2-binary = "*"
+python-dotenv = "*"
 
 [dev-packages]
 
